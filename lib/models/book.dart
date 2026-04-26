@@ -1,8 +1,8 @@
 class Book{
   final String title;
   final String author;
-  final String rating;
-  final String progress;
+  final double rating;
+  final int progress;
   final String status;
   final String image;
 
