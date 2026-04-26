@@ -1,10 +1,31 @@
 import 'package:flutter/material.dart';
+import '../models/book.dart';
+import '../widgets/book_card.dart';
 
-class HomeScreen extends StatelessWidget{
-  const HomeScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
+
+  final List<Book> books = [
+    Book(
+      title: "laskar pelangi",
+      author: "Andrea Hirata",
+      rating: 4.7,
+      progress: 70,
+      status: "Reading",
+      image: "https://picsum.photos/200/300",
+    ),
+    Book(
+      title: "Atomic Habits",
+      author: "James Clear",
+      rating: 4.8,
+      progress: 100,
+      status: "Done",
+      image: "https://picsum.photos/200/300",
+    ),
+  ];
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FD),
 
@@ -24,7 +45,21 @@ class HomeScreen extends StatelessWidget{
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            //list  buku
+            Expanded(
+              child: ListView.builder(
+                itemCount: books.length,
+                itemBuilder: (context, index) {
+                  return BookCard(book: books[index]);
+                },
               ),
             ),
           ],

@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'smart library',
-      home: const HomeScreen(),
+      home:  HomeScreen(),
     );
   }
 }
