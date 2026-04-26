@@ -4,6 +4,8 @@ class Book{
   final String rating;
   final String progress;
   final String status;
+  final String image;
+
 
   Book({
     required this.title,
@@ -11,5 +13,6 @@ class Book{
     required this.rating,
     required this.progress,
     required this.status,
+    required this.image,
   });
 }
