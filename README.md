@@ -1,16 +1,76 @@
-# smart_library
+# 📚 Smart Library App
 
-A new Flutter project.
+## 📱 Deskripsi Aplikasi
 
-## Getting Started
+Smart Library adalah aplikasi mobile berbasis Flutter yang digunakan untuk mengelola koleksi buku pribadi. Pengguna dapat menambahkan, melihat, mengedit, dan menghapus data buku dengan mudah.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🎯 Tujuan
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Aplikasi ini dibuat untuk membantu pengguna dalam:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* Mengatur daftar buku yang dimiliki
+* Memantau progres membaca
+* Menyimpan informasi buku secara digital
+
+---
+
+## ✨ Fitur Aplikasi
+
+### 🔹 Fitur Utama
+
+* Menambahkan buku
+* Menampilkan daftar buku
+* Melihat detail buku
+* Mengedit data buku
+* Menghapus buku
+
+### 🌟 Fitur Tambahan
+
+* Pencarian buku
+* Rating buku
+* Progress membaca (%)
+* Kategori buku
+* Dark mode (opsional)
+
+---
+
+## ⚙️ Teknologi yang Digunakan
+
+* Flutter
+* Dart
+* Git (Version Control)
+
+---
+
+## ▶️ Cara Menjalankan Aplikasi
+
+1. Clone repository
+2. Jalankan perintah:
+   flutter pub get
+3. Jalankan aplikasi:
+   flutter run
+
+---
+
+## 📂 Struktur Project
+
+lib/
+
+* models/
+* screens/
+* widgets/
+
+---
+
+## 📝 Catatan
+
+Aplikasi dikembangkan secara bertahap dengan menggunakan Git, dimana setiap perubahan di-commit dan di-push secara berkala.
+
+---
+
+## 👨‍💻 Developer
+
+Nama: (Isi Nama Kamu)
+NIM: (Isi NIM Kamu)
