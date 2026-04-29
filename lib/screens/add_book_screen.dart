@@ -36,7 +36,10 @@ class _AddBookScreenState extends State <AddBookScreen> {
 
           //tombol simpan
           ElevatedButton(onPressed: (){
-
+            final newBook={
+              "title":titleController.text,
+              "author":authorController.text,
+            }
           },
            child: const Text("Simpan"),
           ),
