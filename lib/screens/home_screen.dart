@@ -3,10 +3,15 @@ import '../models/book.dart';
 import '../widgets/book_card.dart';
 import 'add_book_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
-  final List<Book> books = [
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<Book> books = [
     Book(
       title: "laskar pelangi",
       author: "Andrea Hirata",
@@ -67,12 +72,28 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
 
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const AddBookScreen(),
-            ),);
-          },
-          child: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddBookScreen()),
+          );
+          if (result != null) {
+            setState(() {
+              books.add(
+                Book(
+                  title: result["title"],
+                  author: result["author"],
+                  rating: 0,
+                  progress: 0,
+                  status: 'New',
+                  image: "https://picsum.photos/200/300",
+                ),
+              );
+            });
+          }
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
