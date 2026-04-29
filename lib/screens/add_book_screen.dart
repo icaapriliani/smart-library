@@ -39,7 +39,7 @@ class _AddBookScreenState extends State <AddBookScreen> {
             final newBook={
               "title":titleController.text,
               "author":authorController.text,
-            }
+            };
           },
            child: const Text("Simpan"),
           ),
