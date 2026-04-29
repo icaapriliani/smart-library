@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import '../widgets/book_card.dart';
+import 'add_book_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -41,7 +42,7 @@ class HomeScreen extends StatelessWidget {
             //search bar
             TextField(
               decoration: InputDecoration(
-                hintText: "Crai buku...",
+                hintText: "Cari buku...",
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
@@ -64,6 +65,14 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AddBookScreen(),
+            ),);
+          },
+          child: const Icon(Icons.add),
       ),
     );
   }
