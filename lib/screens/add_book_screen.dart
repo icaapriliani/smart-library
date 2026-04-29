@@ -40,6 +40,7 @@ class _AddBookScreenState extends State <AddBookScreen> {
               "title":titleController.text,
               "author":authorController.text,
             };
+            Navigator.pop(  context, newBook);
           },
            child: const Text("Simpan"),
           ),
