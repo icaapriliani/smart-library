@@ -5,52 +5,61 @@ import 'add_book_screen.dart';
 import 'detail_book_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
-
- 
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-   @override
+  @override
   void initState() {
     super.initState();
     loadBooks();
   }
-  Future<void> saveBooks() async{
+
+  Future<void> saveBooks() async {
     final prefs = await SharedPreferences.getInstance();
-    final bookList = books.map((book) => {
-      "title": book.title,
-      "author": book.author,
-      "rating": book.rating,
-      "progress": book.progress,
-      "status": book.status,
-      "image": book.image,
-    }).toList();
+    final bookList = books
+        .map(
+          (book) => {
+            "title": book.title,
+            "author": book.author,
+            "rating": book.rating,
+            "progress": book.progress,
+            "status": book.status,
+            "image": book.image,
+          },
+        )
+        .toList();
     prefs.setString("books", jsonEncode(bookList));
   }
 
   Future<void> loadBooks() async {
     final prefs = await SharedPreferences.getInstance();
-    final data=prefs.getString("books");
+    final data = prefs.getString("books");
 
-    if (data != null){
+    if (data != null) {
       final List decoded = jsonDecode(data);
       setState(() {
-        books = decoded.map((item) => Book(
-          title: item["title"],
-          author: item["author"],
-          rating: item["rating"],
-          progress: item["progress"],
-          status: item["status"],
-          image: item["image"],
-        )).toList();
+        books = decoded
+            .map(
+              (item) => Book(
+                title: item["title"],
+                author: item["author"],
+                rating: item["rating"].toDouble(),
+                progress: item["progress"],
+                status: item["status"],
+                image: item["image"],
+              ),
+            )
+            .toList();
       });
     }
   }
+
   List<Book> books = [
     Book(
       title: "laskar pelangi",
@@ -75,8 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final filteredBooks = books.where((book) {
-      final Matchsearch = book.title.toLowerCase().contains(searchQuery.toLowerCase()) || book.author.toLowerCase().contains(searchQuery.toLowerCase());
-      final Matchstatus = selectedStatus == "All" || book.status == selectedStatus;
+      final Matchsearch =
+          book.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          book.author.toLowerCase().contains(searchQuery.toLowerCase());
+      final Matchstatus =
+          selectedStatus == "All" || book.status == selectedStatus;
 
       return Matchsearch && Matchstatus;
     }).toList();
@@ -112,76 +124,82 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
 
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: ["All", "Reading", "Done"].map((status) {
-                  return Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(
-                    label: Text(status),
-                    selected: selectedStatus == status,
-                    onSelected: (selected) {
-                      setState(() {
-                        selectedStatus = status;
-                      });
-                      //filter berdasarkan status
-                    },
-                  ),);
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(status),
+                      selected: selectedStatus == status,
+                      onSelected: (selected) {
+                        setState(() {
+                          selectedStatus = status;
+                        });
+                        //filter berdasarkan status
+                      },
+                    ),
+                  );
                 }).toList(),
               ),
             ),
-                  
 
             //list  buku
             Expanded(
               child: ListView.builder(
-              
                 itemCount: filteredBooks.length,
                 itemBuilder: (context, index) {
                   final book = filteredBooks[index];
                   final realIndex = books.indexOf(book);
 
-return GestureDetector(
+                  return GestureDetector(
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => DetailBookScreen(book: book)));
-                    },
-                  child:  BookCard(
-                    book:book,
-                    onDelete: () {
-                      setState(() {
-                        books.removeAt(realIndex);
-                        saveBooks();
-                      });
-                    },
-                    onEdit: () async {
-                      final result = await Navigator.push(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AddBookScreen(
-                            book: {
-                            "title": book.title,
-                            "author": book.author,
-                            "progress": book.progress,
-                          },
-                          ),
+                          builder: (context) => DetailBookScreen(book: book),
                         ),
                       );
-                      if (result != null) {
-                        setState(() {
-                          books[realIndex] = Book(
-                            title: result["title"],
-                            author: result["author"],
-                            rating: book.rating,
-                            progress: result["progress"] ?? book.progress,
-                            status: book.status,
-                            image: book.image,
-                             );
-                             saveBooks();
-                        });
-                      }
                     },
-                  ),
+                    child: BookCard(
+                      book: book,
+                      onDelete: () {
+                        setState(() {
+                          books.removeAt(realIndex);
+                          saveBooks();
+                        });
+                      },
+                      onEdit: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddBookScreen(
+                              book: {
+                                "title": book.title,
+                                "author": book.author,
+                                "progress": book.progress,
+                                "rating": book.rating,
+                              },
+                            ),
+                          ),
+                        );
+                        if (result != null) {
+                          setState(() {
+                            books[realIndex] = Book(
+                              title: result["title"],
+                              author: result["author"],
+                              rating: result["rating"] ?? book.rating,
+                              progress: result["progress"] ?? book.progress,
+                              status: book.status,
+                              image: book.image,
+                            );
+                            saveBooks();
+                          });
+                        }
+                      },
+                    ),
                   );
                 },
               ),
@@ -202,7 +220,7 @@ return GestureDetector(
                 Book(
                   title: result["title"],
                   author: result["author"],
-                  rating: 0,
+                   rating: result["rating"] ?? 0,
                   progress: result["progress"] ?? 0,
                   status: 'New',
                   image: "https://picsum.photos/200/300",

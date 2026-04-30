@@ -39,11 +39,14 @@ Widget build(BuildContext context){
               const SizedBox(height: 6),
 
               Row(
-                children: [
-                  const Icon( Icons.star, color: Colors.amber, size: 16),
-                  Text("${book.rating}")
-                ],
-              ),
+  children: List.generate(5, (index) {
+    return Icon(
+      Icons.star,
+      size: 16,
+      color: index < book.rating ? Colors.amber : Colors.grey,
+    );
+  }),
+),
 
               const SizedBox(height: 6),
 

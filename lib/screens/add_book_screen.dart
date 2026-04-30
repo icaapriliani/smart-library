@@ -13,6 +13,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController authorController = TextEditingController();
   double progress = 0;
+  double rating = 0;
   @override
   void initState() {
     super.initState();
@@ -21,6 +22,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       titleController.text = widget.book!['title'];
       authorController.text = widget.book!['author'];
       progress = (widget.book!['progress'] ?? 0).toDouble();
+      rating = (widget.book!['rating'] ?? 0).toDouble();
     }
   }
 
@@ -60,6 +62,29 @@ class _AddBookScreenState extends State<AddBookScreen> {
               },
             ),
 const SizedBox(height: 20),
+//rating
+
+Align(
+  alignment: Alignment.centerLeft,
+  child: Text('Rating'),
+),
+Row(
+  children: List.generate(5, (index) {
+    return IconButton(
+      onPressed: () {
+        setState(() {
+          rating = index + 1;
+        });
+      },
+      icon: Icon(
+        Icons.star,
+        color: index < rating ? Colors.amber : Colors.grey,
+      ),
+      
+     
+    );
+  }),
+),
             //tombol simpan
             ElevatedButton(
               onPressed: () {
@@ -76,6 +101,7 @@ const SizedBox(height: 20),
                   "title": titleController.text,
                   "author": authorController.text,
                   "progress": progress.toInt(),
+                  "rating": rating,
                 };
                 Navigator.pop(context, newBook);
               },
