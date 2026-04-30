@@ -5,6 +5,15 @@ class AddBookScreen extends StatefulWidget {
   
 const AddBookScreen({super.key, this.book});
 
+
+
+  @override
+  State<AddBookScreen> createState() => _AddBookScreenState();
+}
+
+class _AddBookScreenState extends State <AddBookScreen> {
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController authorController = TextEditingController();
 @override 
 void initState() {
   super.initState();
@@ -15,13 +24,6 @@ void initState() {
   }
 }
 
-  @override
-  State<AddBookScreen> createState() => _AddBookScreenState();
-}
-
-class _AddBookScreenState extends State <AddBookScreen> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController authorController = TextEditingController();
 @override
   Widget build(BuildContext context) {
     return Scaffold(
