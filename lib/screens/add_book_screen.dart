@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
 
 class AddBookScreen extends StatefulWidget {
-const AddBookScreen({super.key});
+  final Map<String, dynamic>? book;
+  
+const AddBookScreen({super.key, this.book});
+
+@override 
+void initState() {
+  super.initState();
+
+  if (widget.book != null) {
+    titleController.text = widget.book!['title'];
+    authorController.text = widget.book!['author'];
+  }
+}
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
