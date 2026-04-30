@@ -3,14 +3,54 @@ import '../models/book.dart';
 import '../widgets/book_card.dart';
 import 'add_book_screen.dart';
 import 'detail_book_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
+
+ 
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+   @override
+  void initState() {
+    super.initState();
+    loadBooks();
+  }
+  Future<void> saveBooks() async{
+    final prefs = await SharedPreferences.getInstance();
+    final bookList = books.map((book) => {
+      "title": book.title,
+      "author": book.author,
+      "rating": book.rating,
+      "progress": book.progress,
+      "status": book.status,
+      "image": book.image,
+    }).toList();
+    prefs.setString("books", jsonEncode(bookList));
+  }
+
+  Future<void> loadBooks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data=prefs.getString("books");
+
+    if (data != null){
+      final List decoded = jsonDecode(data);
+      setState(() {
+        books = decoded.map((item) => Book(
+          title: item["title"],
+          author: item["author"],
+          rating: item["rating"],
+          progress: item["progress"],
+          status: item["status"],
+          image: item["image"],
+        )).toList();
+      });
+    }
+  }
   List<Book> books = [
     Book(
       title: "laskar pelangi",
@@ -111,6 +151,7 @@ return GestureDetector(
                     onDelete: () {
                       setState(() {
                         books.removeAt(realIndex);
+                        saveBooks();
                       });
                     },
                     onEdit: () async {
@@ -136,6 +177,7 @@ return GestureDetector(
                             status: book.status,
                             image: book.image,
                              );
+                             saveBooks();
                         });
                       }
                     },
@@ -166,6 +208,7 @@ return GestureDetector(
                   image: "https://picsum.photos/200/300",
                 ),
               );
+              saveBooks();
             });
           }
         },
