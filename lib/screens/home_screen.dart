@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/book.dart';
 import '../widgets/book_card.dart';
 import 'add_book_screen.dart';
-
+import 'detail_book_screen.dart';
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
@@ -102,7 +102,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   final book = filteredBooks[index];
                   final realIndex = books.indexOf(book);
 
-                  return BookCard(
+return GestureDetector(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => DetailBookScreen(book: book)));
+                    },
+                  child:  BookCard(
                     book:book,
                     onDelete: () {
                       setState(() {
@@ -135,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                       }
                     },
+                  ),
                   );
                 },
               ),
