@@ -30,10 +30,17 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ];
   String searchQuery = "";
+  String selectedStatus = "All";
 
   @override
   Widget build(BuildContext context) {
-    final filteredBooks = books.where((book) => book.title.toLowerCase().contains(searchQuery.toLowerCase())).toList();
+    final filteredBooks = books.where((book) {
+      final Matchsearch = book.title.toLowerCase().contains(searchQuery.toLowerCase()) || book.author.toLowerCase().contains(searchQuery.toLowerCase());
+      final Matchstatus = selectedStatus == "All" || book.status == selectedStatus;
+
+      return Matchsearch && Matchstatus;
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FD),
 
@@ -65,6 +72,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            
+
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: ["All", "Reading", "Done"].map((status) {
+                  return Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(
+                    label: Text(status),
+                    selected: selectedStatus == status,
+                    onSelected: (selected) {
+                      setState(() {
+                        selectedStatus = status;
+                      });
+                      //filter berdasarkan status
+                    },
+                  ),);
+                }).toList(),
+              ),
+            ),
+                  
 
             //list  buku
             Expanded(
@@ -97,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                       if (result != null) {
                         setState(() {
-                          books[index] = Book(
+                          books[realIndex] = Book(
                             title: result["title"],
                             author: result["author"],
                             rating: book.rating,

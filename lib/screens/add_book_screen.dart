@@ -75,7 +75,7 @@ const SizedBox(height: 20),
                 final newBook = {
                   "title": titleController.text,
                   "author": authorController.text,
-                  progress: progress.toInt(),
+                  "progress": progress.toInt(),
                 };
                 Navigator.pop(context, newBook);
               },
