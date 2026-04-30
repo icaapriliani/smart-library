@@ -3,8 +3,9 @@ import '../models/book.dart';
 
 class BookCard extends StatelessWidget{
   final Book book;
+  final VoidCallback onDelete;
 
-  const BookCard({super.key, required this.book});
+  const BookCard({super.key, required this.book, required this.onDelete});
 
  @override 
 
@@ -54,6 +55,10 @@ Widget build(BuildContext context){
 
           ], 
         ),
+        ),
+        IconButton(
+          onPressed: onDelete,
+          icon: const Icon(Icons.delete, color: Colors.red),
         ),
       ],
     ),
