@@ -71,6 +71,31 @@ class _HomeScreenState extends State<HomeScreen> {
                         books.removeAt(index);
                       });
                     },
+                    onEdit: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddBookScreen(
+                            book: {
+                            "title": books[index].title,
+                            "author": books[index].author,
+                          },
+                          ),
+                        ),
+                      );
+                      if (result != null) {
+                        setState(() {
+                          books[index] = Book(
+                            title: result["title"],
+                            author: result["author"],
+                            rating: books[index].rating,
+                            progress: books[index].progress,
+                            status: books[index].status,
+                            image: books[index].image,
+                             );
+                        });
+                      }
+                    },
                   );
                 },
               ),
