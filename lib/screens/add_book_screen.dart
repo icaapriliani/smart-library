@@ -20,7 +20,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     if (widget.book != null) {
       titleController.text = widget.book!['title'];
       authorController.text = widget.book!['author'];
-      progress = (widget.book!['progress'] ?? 0).double();
+      progress = (widget.book!['progress'] ?? 0).toDouble();
     }
   }
 

@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     book:book,
                     onDelete: () {
                       setState(() {
-                        books.removeAt(index);
+                        books.removeAt(realIndex);
                       });
                     },
                     onEdit: () async {
@@ -88,8 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         MaterialPageRoute(
                           builder: (context) => AddBookScreen(
                             book: {
-                            "title": books[index].title,
-                            "author": books[index].author,
+                            "title": book.title,
+                            "author": book.author,
+                            "progress": book.progress,
                           },
                           ),
                         ),
@@ -99,10 +100,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           books[index] = Book(
                             title: result["title"],
                             author: result["author"],
-                            rating: books[index].rating,
-                            progress: books[index].progress,
-                            status: books[index].status,
-                            image: books[index].image,
+                            rating: book.rating,
+                            progress: result["progress"] ?? book.progress,
+                            status: book.status,
+                            image: book.image,
                              );
                         });
                       }
@@ -128,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: result["title"],
                   author: result["author"],
                   rating: 0,
-                  progress: 0,
+                  progress: result["progress"] ?? 0,
                   status: 'New',
                   image: "https://picsum.photos/200/300",
                 ),
