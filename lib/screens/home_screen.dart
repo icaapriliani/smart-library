@@ -64,7 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView.builder(
                 itemCount: books.length,
                 itemBuilder: (context, index) {
-                  return BookCard(book: books[index]);
+                  return BookCard(
+                    book: books[index],
+                    onDelete: () {
+                      setState(() {
+                        books.removeAt(index);
+                      });
+                    },
+                  );
                 },
               ),
             ),
