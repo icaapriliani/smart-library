@@ -29,9 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
       image: "https://picsum.photos/200/300",
     ),
   ];
+  String searchQuery = "";
 
   @override
   Widget build(BuildContext context) {
+    final filteredBooks = books.where((book) => book.title.toLowerCase().contains(searchQuery.toLowerCase())).toList();
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FD),
 
@@ -46,6 +48,11 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             //search bar
             TextField(
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value;
+                });
+              },
               decoration: InputDecoration(
                 hintText: "Cari buku...",
                 prefixIcon: const Icon(Icons.search),
@@ -62,10 +69,14 @@ class _HomeScreenState extends State<HomeScreen> {
             //list  buku
             Expanded(
               child: ListView.builder(
-                itemCount: books.length,
+              
+                itemCount: filteredBooks.length,
                 itemBuilder: (context, index) {
+                  final book = filteredBooks[index];
+                  final realIndex = books.indexOf(book);
+
                   return BookCard(
-                    book: books[index],
+                    book:book,
                     onDelete: () {
                       setState(() {
                         books.removeAt(index);
