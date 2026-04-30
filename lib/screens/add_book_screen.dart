@@ -36,6 +36,12 @@ class _AddBookScreenState extends State <AddBookScreen> {
 
           //tombol simpan
           ElevatedButton(onPressed: (){
+            if (titleController.text.isEmpty || authorController.text.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Judul dan Penulis tidak boleh kosong")),
+              );
+              return;
+            }
             final newBook={
               "title":titleController.text,
               "author":authorController.text,
