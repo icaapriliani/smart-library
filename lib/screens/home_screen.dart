@@ -5,6 +5,7 @@ import 'add_book_screen.dart';
 import 'detail_book_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'statistics_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -109,6 +110,15 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Smart Library"),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          IconButton( icon: const Icon(Icons.bar_chart),
+          onPressed: (){
+            Navigator.push(context,MaterialPageRoute(builder: (context)=>StatisticsScreen(books: books),
+            ),
+            );
+          },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
