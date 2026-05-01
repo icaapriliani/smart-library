@@ -80,6 +80,12 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   String searchQuery = "";
   String selectedStatus = "All";
+  String getStatus(int progress) {
+  if (progress == 100) return "Done";
+  if (progress > 0) return "Reading";
+  return "New";
+}
+  
 
   @override
   Widget build(BuildContext context) {
@@ -187,12 +193,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                         if (result != null) {
                           setState(() {
+                            final newProgress = result["progress"] ?? book.progress;
+
                             books[realIndex] = Book(
                               title: result["title"],
                               author: result["author"],
                               rating: result["rating"] ?? book.rating,
-                              progress: result["progress"] ?? book.progress,
-                              status: book.status,
+                               progress: newProgress,
+  status: getStatus(newProgress),
                               image: book.image,
                             );
                             saveBooks();
@@ -216,13 +224,14 @@ class _HomeScreenState extends State<HomeScreen> {
           );
           if (result != null) {
             setState(() {
+              final progress = result["progress"] ?? 0;
               books.add(
                 Book(
                   title: result["title"],
                   author: result["author"],
                    rating: result["rating"] ?? 0,
-                  progress: result["progress"] ?? 0,
-                  status: 'New',
+                  progress: progress,
+    status: getStatus(progress), 
                   image: "https://picsum.photos/200/300",
                 ),
               );
