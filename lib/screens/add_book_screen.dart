@@ -12,6 +12,10 @@ class AddBookScreen extends StatefulWidget {
 class _AddBookScreenState extends State<AddBookScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController authorController = TextEditingController();
+  final TextEditingController yearController = TextEditingController();
+  final TextEditingController pagesController = TextEditingController();
+  final TextEditingController languageController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
   double progress = 0;
   double rating = 0;
   String selectedCategory = "Novel";
@@ -33,6 +37,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
       progress = (widget.book!['progress'] ?? 0).toDouble();
       rating = (widget.book!['rating'] ?? 0).toDouble();
       selectedCategory = widget.book?["category"] ?? "Novel";
+      yearController.text = widget.book!['year'].toString();
+      pagesController.text = widget.book!['pages'].toString();
+      languageController.text = widget.book!['language'];
+      descriptionController.text = widget.book!['description'];
     }
   }
 
@@ -70,6 +78,36 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 });
               },
               decoration: const InputDecoration(labelText: "Kategori"),
+            ),
+            const SizedBox(height: 20),
+
+            //tahun
+            TextField(
+              controller: yearController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Tahun Terbit"),
+            ),
+            const SizedBox(height: 12),
+            //pages
+            TextField(
+              controller: pagesController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Jumlah Halaman"),
+            ),
+            const SizedBox(height: 12),
+
+            //bahasa
+            TextField(
+              controller: languageController,
+              decoration: const InputDecoration(labelText: "Bahasa"),
+            ),
+            const SizedBox(height: 12),
+
+            //description
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(labelText: "Deskripsi"),
+              maxLines: 3,
             ),
             const SizedBox(height: 20),
 
@@ -126,6 +164,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   "progress": progress.toInt(),
                   "rating": rating,
                   "category": selectedCategory,
+                  "year": int.tryParse(yearController.text) ?? 0,
+                  "pages": int.tryParse(pagesController.text) ?? 0,
+                  "language": languageController.text,
+                  "description": descriptionController.text,
                 };
 
                 Navigator.pop(context, newBook);

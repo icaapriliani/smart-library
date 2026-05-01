@@ -33,6 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
             "status": book.status,
             "image": book.image,
             "category": book.category,
+            "year": book.year,
+            "pages": book.pages,
+            "language": book.language,
+            "description": book.description,
           },
         )
         .toList();
@@ -56,6 +60,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 status: item["status"],
                 image: item["image"],
                 category: item["category"] ?? "Lainnya",
+                year: item["year"] ?? 0,
+                pages: item["pages"] ?? 0,
+                language: item["language"] ?? "Indonesia",
+                description: item["description"] ?? "",
               ),
             )
             .toList();
@@ -72,6 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
       status: "Reading",
       category: "Novel",
       image: "https://picsum.photos/200/300",
+      year: 2005,
+      pages: 529,
+      language: "Indonesia",
+      description: "Cerita inspiratif tentang anak-anak Belitung.",
     ),
     Book(
       title: "Atomic Habits",
@@ -81,6 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
       status: "Done",
       category: "Pengembangan Diri",
       image: "https://picsum.photos/200/300",
+      year: 2010,
+      pages: 300,
+      language: "English",
+      description: "Cerita inspiratif tentang anak-anak Belitung.",
     ),
   ];
   String searchQuery = "";
@@ -111,12 +127,16 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          IconButton( icon: const Icon(Icons.bar_chart),
-          onPressed: (){
-            Navigator.push(context,MaterialPageRoute(builder: (context)=>StatisticsScreen(books: books),
-            ),
-            );
-          },
+          IconButton(
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StatisticsScreen(books: books),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -217,6 +237,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               progress: newProgress,
                               status: getStatus(newProgress),
                               category: result["category"] ?? book.category,
+                              year: result["year"] ?? book.year,
+                              pages: result["pages"] ?? book.pages,
+                              language: result["language"] ?? book.language,
+                              description:
+                                  result["description"] ?? book.description,
                               image: book.image,
                             );
                             saveBooks();
@@ -249,6 +274,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   progress: progress,
                   status: getStatus(progress),
                   category: result["category"] ?? "Lainnya",
+                  year: result["year"] ?? 0,
+                  pages: result["pages"] ?? 0,
+                  language: result["language"] ?? "Indonesia",
+                  description: result["description"] ?? "",
                   image: "https://picsum.photos/200/300",
                 ),
               );

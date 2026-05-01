@@ -6,6 +6,10 @@ class Book {
   final String status;
   final String image;
   final String category;
+  final int year;
+  final int pages;
+  final String language;
+  final String description;
 
   Book({
     required this.title,
@@ -15,5 +19,9 @@ class Book {
     required this.status,
     required this.image,
     required this.category,
+    required this.year,
+    required this.pages,
+    required this.language,
+    required this.description,
   });
 }
