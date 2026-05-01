@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
             "progress": book.progress,
             "status": book.status,
             "image": book.image,
+            "category": book.category,
           },
         )
         .toList();
@@ -53,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 progress: item["progress"],
                 status: item["status"],
                 image: item["image"],
+                category: item["category"] ?? "Lainnya",
               ),
             )
             .toList();
@@ -67,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
       rating: 4.7,
       progress: 70,
       status: "Reading",
+      category: "Novel",
       image: "https://picsum.photos/200/300",
     ),
     Book(
@@ -75,17 +78,17 @@ class _HomeScreenState extends State<HomeScreen> {
       rating: 4.8,
       progress: 100,
       status: "Done",
+      category: "Pengembangan Diri",
       image: "https://picsum.photos/200/300",
     ),
   ];
   String searchQuery = "";
   String selectedStatus = "All";
   String getStatus(int progress) {
-  if (progress == 100) return "Done";
-  if (progress > 0) return "Reading";
-  return "New";
-}
-  
+    if (progress == 100) return "Done";
+    if (progress > 0) return "Reading";
+    return "New";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,20 +190,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                 "author": book.author,
                                 "progress": book.progress,
                                 "rating": book.rating,
+                                "category": book.category,
                               },
                             ),
                           ),
                         );
                         if (result != null) {
                           setState(() {
-                            final newProgress = result["progress"] ?? book.progress;
+                            final newProgress =
+                                result["progress"] ?? book.progress;
 
                             books[realIndex] = Book(
                               title: result["title"],
                               author: result["author"],
                               rating: result["rating"] ?? book.rating,
-                               progress: newProgress,
-  status: getStatus(newProgress),
+                              progress: newProgress,
+                              status: getStatus(newProgress),
+                              category: result["category"] ?? book.category,
                               image: book.image,
                             );
                             saveBooks();
@@ -229,9 +235,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Book(
                   title: result["title"],
                   author: result["author"],
-                   rating: result["rating"] ?? 0,
+                  rating: result["rating"] ?? 0,
                   progress: progress,
-    status: getStatus(progress), 
+                  status: getStatus(progress),
+                  category: result["category"] ?? "Lainnya",
                   image: "https://picsum.photos/200/300",
                 ),
               );

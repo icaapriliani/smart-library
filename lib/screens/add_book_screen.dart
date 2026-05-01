@@ -14,6 +14,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final TextEditingController authorController = TextEditingController();
   double progress = 0;
   double rating = 0;
+  String selectedCategory = "Novel";
+
+  final List<String> categories = [
+    "Novel",
+    "Pengembangan Diri",
+    "Sejarah",
+    "Bisnis",
+    "Teknologi",
+  ];
   @override
   void initState() {
     super.initState();
@@ -23,25 +32,44 @@ class _AddBookScreenState extends State<AddBookScreen> {
       authorController.text = widget.book!['author'];
       progress = (widget.book!['progress'] ?? 0).toDouble();
       rating = (widget.book!['rating'] ?? 0).toDouble();
+      selectedCategory = widget.book?["category"] ?? "Novel";
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Tambah Buku")),
-      body: Padding(
+      appBar: AppBar(
+        title: Text(widget.book != null ? "Edit Buku" : "Tambah Buku"),
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            //judul
             TextField(
               controller: titleController,
               decoration: const InputDecoration(labelText: "Judul Buku"),
             ),
             const SizedBox(height: 12),
+            //penulis
             TextField(
               controller: authorController,
               decoration: const InputDecoration(labelText: "Penulis"),
+            ),
+            const SizedBox(height: 12),
+            //kategori
+            DropdownButtonFormField(
+              value: selectedCategory,
+              items: categories.map((cat) {
+                return DropdownMenuItem(value: cat, child: Text(cat));
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedCategory = value!;
+                });
+              },
+              decoration: const InputDecoration(labelText: "Kategori"),
             ),
             const SizedBox(height: 20),
 
@@ -61,30 +89,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 });
               },
             ),
-const SizedBox(height: 20),
-//rating
+            const SizedBox(height: 20),
 
-Align(
-  alignment: Alignment.centerLeft,
-  child: Text('Rating'),
-),
-Row(
-  children: List.generate(5, (index) {
-    return IconButton(
-      onPressed: () {
-        setState(() {
-          rating = index + 1;
-        });
-      },
-      icon: Icon(
-        Icons.star,
-        color: index < rating ? Colors.amber : Colors.grey,
-      ),
-      
-     
-    );
-  }),
-),
+            //rating
+            Align(alignment: Alignment.centerLeft, child: Text('Rating')),
+            Row(
+              children: List.generate(5, (index) {
+                return IconButton(
+                  onPressed: () {
+                    setState(() {
+                      rating = index + 1;
+                    });
+                  },
+                  icon: Icon(
+                    Icons.star,
+                    color: index < rating ? Colors.amber : Colors.grey,
+                  ),
+                );
+              }),
+            ),
             //tombol simpan
             ElevatedButton(
               onPressed: () {
@@ -102,7 +125,9 @@ Row(
                   "author": authorController.text,
                   "progress": progress.toInt(),
                   "rating": rating,
+                  "category": selectedCategory,
                 };
+
                 Navigator.pop(context, newBook);
               },
               child: const Text("Simpan"),
