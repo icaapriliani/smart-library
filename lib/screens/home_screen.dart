@@ -140,10 +140,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      //header
+      
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            Column(crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text ("Halo,Ica", style: TextStyle(color: Colors.grey),),
+          const SizedBox(height: 4),
+          const Text("Smart Libarary", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),),
+          const SizedBox(height: 4),
+          const Text("kelola koleksi buku pribadimu dengan mudah" , style: TextStyle(color: Colors.grey),
+          ),
+        
+      ],),
             //search bar
             TextField(
               onChanged: (value) {
