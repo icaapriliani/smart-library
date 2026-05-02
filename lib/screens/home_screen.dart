@@ -186,13 +186,22 @@ class _HomeScreenState extends State<HomeScreen> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: ["All", "Reading", "Done"].map((status) {
+                children: ["All", "New","Reading", "Done"].map((status) {
+                  final isSelected = selectedStatus == status;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ChoiceChip(
                       label: Text(status),
-                      selected: selectedStatus == status,
-                      onSelected: (selected) {
+                      selected: isSelected,
+                      selectedColor: Colors.deepPurple,
+                      backgroundColor: Colors.grey.shade200,
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      onSelected: (_) {
                         setState(() {
                           selectedStatus = status;
                         });
