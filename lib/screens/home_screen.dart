@@ -107,6 +107,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return "New";
   }
 
+  Widget buildStat(String title, int value){
+    return Column(
+      children: [
+        Text(value.toString(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+        Text(title, style: const TextStyle(color: Colors.grey),)
+        ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredBooks = books.where((book) {
@@ -280,10 +289,33 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
+              
             ),
+            Container(
+              padding: const EdgeInsets.all(16),
+             decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 8,
+                ),
+              ],
+             ),
+             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                buildStat("Total", books.length),
+                buildStat("Reading", books.where((b) => b.status == "Reading").length),
+                buildStat("Done", books.where((b) => b.status == "Done").length),
+              ],
+             ),
+             ),
           ],
         ),
       ),
+           
 
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
