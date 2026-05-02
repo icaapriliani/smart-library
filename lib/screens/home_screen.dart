@@ -156,21 +156,28 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         
       ],),
-            //search bar
-            TextField(
-              onChanged: (value) {
+            ///search
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+            child: TextField(onChanged: (value){
                 setState(() {
                   searchQuery = value;
                 });
-              },
+            },
               decoration: InputDecoration(
-                hintText: "Cari buku...",
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                hintText: "Cari buku, penulis, atau kategori...",
+                prefixIcon:  Icon(Icons.search),
+                suffixIcon: Icon (Icons.tune),
+                border: InputBorder.none,
                 ),
               ),
             ),
