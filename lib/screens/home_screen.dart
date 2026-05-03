@@ -154,17 +154,64 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          children: [
-            Column(crossAxisAlignment: CrossAxisAlignment.start,
+          
+          crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text ("Halo,Ica", style: TextStyle(color: Colors.grey),),
-          const SizedBox(height: 4),
-          const Text("Smart Libarary", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),),
-          const SizedBox(height: 4),
-          const Text("kelola koleksi buku pribadimu dengan mudah" , style: TextStyle(color: Colors.grey),
-          ),
         
-      ],),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(child: 
+
+            //left text
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children:const [
+                
+                  Text("Halo, Ica",
+                  style: TextStyle(color: Colors.grey),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    "smart library", 
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                     SizedBox(height: 4),
+        Text(
+          "Kelola koleksi buku pribadimu dengan mudah",
+          style: TextStyle(color: Colors.grey),
+        ),
+              ],
+            ),
+            ),
+            //right icon
+            Row(
+              children: [
+                //notifikasi
+                Stack(
+                  children: [
+                    const Icon(Icons.notifications_none, size: 26),
+                    Positioned(right: 0, child: Container(
+                     padding: const EdgeInsets.all(4),
+                     decoration: BoxDecoration(color: Colors.deepPurple, shape: BoxShape.circle),
+                     child: const Text("3", style: TextStyle(color: Colors.white, fontSize: 10),
+                      ),
+                    ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                //avatar
+                const CircleAvatar(
+                  backgroundImage: NetworkImage("https://picsum.photos/200/300"),
+                ),
+            
+              ],
+            ),
+          ],
+        
+        ),
+          const SizedBox(height: 16),
             ///search
             Container(
               decoration: BoxDecoration(
@@ -313,8 +360,11 @@ class _HomeScreenState extends State<HomeScreen> {
              ),
              ),
           ],
-        ),
+        
       ),
+      ),
+      
+     
            
 
       floatingActionButton: FloatingActionButton(
