@@ -19,9 +19,11 @@ class DetailBookScreen extends StatelessWidget {
           SizedBox(width: 12),
         ],
       ),
-      body: Padding(
+      body:SingleChildScrollView(
+       
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //top section
              Row(
@@ -38,7 +40,7 @@ class DetailBookScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(width: 16),
 
             //info
             Expanded(
@@ -47,7 +49,7 @@ class DetailBookScreen extends StatelessWidget {
               children: [
                 //judul
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                 
                   children: [
                     Expanded(
                       child: Text(
@@ -60,13 +62,14 @@ class DetailBookScreen extends StatelessWidget {
 
                     //bookmark
                     Container(
+                      padding: const  EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.deepPurple,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Padding(padding: EdgeInsets.all(6),
+                     
                       child: Icon(Icons.star, color: Colors.white, size: 16),
-                      ),
+                      
                       ),
                 
                   ],
@@ -87,24 +90,15 @@ class DetailBookScreen extends StatelessWidget {
 
           const SizedBox(height: 8),
                     // status
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          book.status,
-                          style: const TextStyle(color: Colors.green),
-                        ),
-                      ),
+                     
+                      buildStatusBadge(book.status),
                        ],
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
                     //progres
                     Row(
@@ -123,7 +117,7 @@ class DetailBookScreen extends StatelessWidget {
                       backgroundColor: Colors.grey.shade300,
                       color: Colors.deepPurple,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
                   //detail info
                   buildInfo(Icons.category, "Kategori", book.category),
@@ -148,7 +142,7 @@ class DetailBookScreen extends StatelessWidget {
               style: const TextStyle(color: Colors.grey),
             ),
 
-            const Spacer(),
+             const SizedBox(height: 24),
 
             //buttons
             Row(
@@ -171,6 +165,39 @@ class DetailBookScreen extends StatelessWidget {
       ),
     );
   }
+
+  // 🔥 STATUS BADGE DINAMIS
+  Widget buildStatusBadge(String status) {
+    Color bgColor;
+    Color textColor;
+
+    switch (status) {
+      case "Done":
+        bgColor = Colors.green.withOpacity(0.1);
+        textColor = Colors.green;
+        break;
+      case "Reading":
+        bgColor = Colors.orange.withOpacity(0.1);
+        textColor = Colors.orange;
+        break;
+      default:
+        bgColor = Colors.grey.withOpacity(0.1);
+        textColor = Colors.grey;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        status,
+        style: TextStyle(color: textColor),
+      ),
+    );
+  }
+
 Widget buildInfo(IconData icon, String title, String value){
   return Padding(
     padding: const EdgeInsets.only(bottom: 8),
@@ -179,7 +206,8 @@ Widget buildInfo(IconData icon, String title, String value){
         Icon(icon, size: 16, color: Colors.grey),
         const SizedBox(width: 6),
        Expanded(child: Text(title)),
-        Text(value, style: const TextStyle(color: Colors.grey)),
+        Text(value, style: const TextStyle(color: Colors.grey),
+        ),
       ],
     ),
   );
