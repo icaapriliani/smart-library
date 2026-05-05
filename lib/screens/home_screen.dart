@@ -20,6 +20,34 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     loadBooks();
   }
+  
+  Widget buildStatItem(IconData icon, String title, int value) {
+  return Column(
+    children: [
+      CircleAvatar(
+        radius: 16,
+        backgroundColor: Colors.white,
+        child: Icon(icon, size: 16, color: Colors.deepPurple),
+      ),
+      const SizedBox(height: 6),
+      Text(
+        value.toString(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      Text(
+        title,
+        style: const TextStyle(
+          color: Colors.white70,
+          fontSize: 11,
+        ),
+      ),
+    ],
+  );
+}
+
 
   Future<void> saveBooks() async {
     final prefs = await SharedPreferences.getInstance();
@@ -117,6 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  
   Widget build(BuildContext context) {
     final filteredBooks = books.where((book) {
       final Matchsearch =
@@ -339,32 +368,55 @@ class _HomeScreenState extends State<HomeScreen> {
               
             ),
             Container(
+               margin: const EdgeInsets.only(top: 16),
               padding: const EdgeInsets.all(16),
              decoration: BoxDecoration(
-              color: Colors.white,
+            
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 8,
-                ),
-              ],
-             ),
-             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                buildStat("Total", books.length),
-                buildStat("Reading", books.where((b) => b.status == "Reading").length),
-                buildStat("Done", books.where((b) => b.status == "Done").length),
-              ],
-             ),
-             ),
-          ],
-        
+             gradient: const LinearGradient(
+      colors: [Color(0xFF6A5AE0), Color(0xFF8E7CFF)],
+         ),
+  ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+children: const [
+          Text(
+            "Statistik Membaca",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text("Lihat Detail", style: TextStyle(color: Colors.white70),),
+        ],
       ),
-      ),
+      const SizedBox(height: 16),
+
+      //stats row
+      Row(
+        mainAxisAlignment:MainAxisAlignment.spaceAround,
+        children: [
+           buildStatItem(Icons.menu_book, "Total", books.length),
+          buildStatItem(Icons.check_circle, "Selesai",
+              books.where((b) => b.status == "Done").length),
+          buildStatItem(Icons.auto_stories, "Reading",
+              books.where((b) => b.status == "Reading").length),
+          buildStatItem(Icons.book, "New",
+              books.where((b) => b.status == "New").length),
+
+
       
-     
+       ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
            
 
       floatingActionButton: FloatingActionButton(
