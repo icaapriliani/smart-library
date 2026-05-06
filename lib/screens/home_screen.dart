@@ -165,17 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.bar_chart),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StatisticsScreen(books: books),
-                ),
-              );
-            },
-          ),
+          
         ],
       ),
       //header
@@ -318,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
 
-                      //terima dari detail
+                      /// 🔥 TERIMA DATA DARI DETAIL
                       if (result != null) {
                           if (result["delete"] == true) {
     setState(() {
@@ -342,7 +332,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             language: updated["language"] ?? book.language,
                             description:
                                 updated["description"] ?? book.description,
-                              image: updated["image"], );
+                              image: books[result["index"]].image,
+                          );
                         });
 
                         saveBooks();
@@ -362,17 +353,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           MaterialPageRoute(
                             builder: (context) => AddBookScreen(
                               book: {
-                                
                                 "title": book.title,
                                 "author": book.author,
                                 "progress": book.progress,
                                 "rating": book.rating,
                                 "category": book.category,
-                                "year": book.year,
-                                "pages": book.pages,
-                                "language": book.language,
-                                "description": book.description,
-                                "image": book.image,
                               },
                             ),
                           ),
@@ -394,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               language: result["language"] ?? book.language,
                               description:
                                   result["description"] ?? book.description,
-                              image: result["image"] ?? book.image,
+                              image: book.image,
                             );
                             saveBooks();
                           });
@@ -421,17 +406,30 @@ class _HomeScreenState extends State<HomeScreen> {
     children: [
 Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-children: const [
-          Text(
+children:  [
+          const Text(
             "Statistik Membaca",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text("Lihat Detail", style: TextStyle(color: Colors.white70),),
-        ],
+         GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StatisticsScreen(books: books),
+          ),
+        );
+      },
+      child: const Text(
+        "Lihat Detail",
+        style: TextStyle(color: Colors.white70),
       ),
+    ),
+  ],
+),
       const SizedBox(height: 16),
 
       //stats row
@@ -479,7 +477,7 @@ children: const [
                   pages: result["pages"] ?? 0,
                   language: result["language"] ?? "Indonesia",
                   description: result["description"] ?? "",
-                  image: result["image"] ?? "https://picsum.photos/200/300",
+                  image: "https://picsum.photos/200/300",
                 ),
               );
               saveBooks();
