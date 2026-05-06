@@ -277,7 +277,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         widget.book?["image"],
                 });
                 },
-                child: Text(isEdit ? "Update" : "Simpan"),
+                child: Text(isEdit ? "Update" : "Simpan",   style: const TextStyle(color: Colors.white)),
 
               ),
             
