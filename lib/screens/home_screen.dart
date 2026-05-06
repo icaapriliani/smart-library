@@ -320,9 +320,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       /// 🔥 TERIMA DATA DARI DETAIL
                       if (result != null) {
-                        setState(() {
-                          final updated = result["updatedBook"];
-
+                          if (result["delete"] == true) {
+    setState(() {
+      books.removeAt(result["index"]);
+    });
+    saveBooks();
+    return;
+  }
+  // hadle edit
+  setState(() {
+    final updated = result["updatedBook"];
                           books[result["index"]] = Book(
                             title: updated["title"],
                             author: updated["author"],
@@ -335,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             language: updated["language"] ?? book.language,
                             description:
                                 updated["description"] ?? book.description,
-                            image: book.image,
+                              image: books[result["index"]].image,
                           );
                         });
 

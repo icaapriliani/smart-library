@@ -198,7 +198,37 @@ class DetailBookScreen extends StatelessWidget {
                 Expanded(child: ElevatedButton.icon(
                  style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,),
-                onPressed: () {}, icon: const Icon(Icons.delete), label: const Text("Delete Book"),
+                onPressed: () async {
+                  final confirm = await showDialog(
+                     context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Hapus Buku"),
+          content: const Text("Yakin ingin menghapus buku ini?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text("Hapus"),
+            ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    Navigator.pop(context, {
+                      "index": index,
+                      "delete": true,
+                    });
+                  }
+                },
+                icon: const Icon(Icons.delete),
+                label: const Text("Delete"),
                 ),
                 ),
               ],
