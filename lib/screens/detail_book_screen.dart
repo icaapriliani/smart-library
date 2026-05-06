@@ -93,13 +93,23 @@ class DetailBookScreen extends StatelessWidget {
           const SizedBox(height: 8),
                     // status
                      
-                      buildStatusBadge(book.status),
-                       ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          book.status,
+                          style: const TextStyle(color: Colors.green),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 24),
 
                     //progres
@@ -149,10 +159,41 @@ class DetailBookScreen extends StatelessWidget {
             //buttons
             Row(
               children: [
-                Expanded(child: OutlinedButton.icon(onPressed: () {},
-                icon: const Icon(Icons.edit), label: const Text("Edit Book"),
+                Expanded(child: OutlinedButton.icon(onPressed: () async {
+                  final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AddBookScreen(
+                            book: {
+                              "title": book.title,
+                              "author": book.author,
+                              "category": book.category,
+                              "rating": book.rating,
+                              "progress": book.progress,
+                              "status": book.status,
+                              "year": book.year,
+                              "pages": book.pages,
+                              "language": book.language,
+                              "description": book.description,
+                            },
+                          ),
+                        ),
+                      );
+
+                      // KIRIM BALIK KE HOME
+                      if (result != null) {
+                        Navigator.pop(context, {
+                          "index": index,
+                          "updatedBook": result,
+                        });
+                      }
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text("Edit"),
+                  ),
                 ),
-                ),
+
+               
                 const SizedBox(width: 12),
                 Expanded(child: ElevatedButton.icon(
                  style: ElevatedButton.styleFrom(

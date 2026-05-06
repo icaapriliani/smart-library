@@ -27,6 +27,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
     "Bisnis",
     "Teknologi",
   ];
+  String getStatus(int progress) {
+    if (progress == 100) return "Done";
+    if (progress > 0) return "Reading";
+    return "New";
+  }
   @override
   void initState() {
     super.initState();
@@ -46,9 +51,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   @override
   Widget build(BuildContext context) {
+      final isEdit = widget.book != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.book != null ? "Edit Buku" : "Tambah Buku"),
+        title: Text(isEdit ? "Edit Buku" : "Tambah Buku"),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -130,7 +136,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
             const SizedBox(height: 20),
 
             //rating
-            Align(alignment: Alignment.centerLeft, child: Text('Rating')),
+             Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Rating: ${rating.toInt()}"),
+            ),
+
             Row(
               children: List.generate(5, (index) {
                 return IconButton(
@@ -146,6 +156,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 );
               }),
             ),
+            const SizedBox(height: 20),
             //tombol simpan
             ElevatedButton(
               onPressed: () {
@@ -164,6 +175,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   "progress": progress.toInt(),
                   "rating": rating,
                   "category": selectedCategory,
+                   "status": getStatus(progress.toInt()),
                   "year": int.tryParse(yearController.text) ?? 0,
                   "pages": int.tryParse(pagesController.text) ?? 0,
                   "language": languageController.text,
@@ -172,7 +184,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
                 Navigator.pop(context, newBook);
               },
-              child: const Text("Simpan"),
+            child: Text(isEdit ? "Update" : "Simpan"),
             ),
           ],
         ),
