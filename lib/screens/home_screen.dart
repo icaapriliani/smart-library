@@ -307,13 +307,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   final realIndex = books.indexOf(book);
 
                   return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => DetailBookScreen(book: book),
+                          builder: (_) => DetailBookScreen(
+                            book: book,
+                            index: realIndex,
+                          ),
                         ),
                       );
+
+                      /// 🔥 TERIMA DATA DARI DETAIL
+                      if (result != null) {
+                        setState(() {
+                          final updated = result["updatedBook"];
+
+                          books[result["index"]] = Book(
+                            title: updated["title"],
+                            author: updated["author"],
+                            rating: updated["rating"],
+                            progress: updated["progress"],
+                            status: updated["status"],
+                            category: updated["category"],
+                            year: updated["year"] ?? book.year,
+                            pages: updated["pages"] ?? book.pages,
+                            language: updated["language"] ?? book.language,
+                            description:
+                                updated["description"] ?? book.description,
+                            image: book.image,
+                          );
+                        });
+
+                        saveBooks();
+                      }
                     },
                     child: BookCard(
                       book: book,

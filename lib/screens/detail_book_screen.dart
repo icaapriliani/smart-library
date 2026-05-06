@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
+import 'add_book_screen.dart';
 
 class DetailBookScreen extends StatelessWidget {
   final Book book;
+  final int index;
 
-  const DetailBookScreen({super.key, required this.book});
+  const DetailBookScreen({super.key, required this.book, required this.index,});
 
   @override
   Widget build(BuildContext context) {
