@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'add_book_screen.dart';
-
+import 'dart:io';
 class DetailBookScreen extends StatelessWidget {
   final Book book;
   final int index;
@@ -34,14 +34,11 @@ class DetailBookScreen extends StatelessWidget {
             //gambar
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                book.image,
-                height: 140,
-                width: 100,
-                fit: BoxFit.cover,
-              ),
+              child:book.image.startsWith("http")
+  ? Image.network(book.image, height: 200)
+  : Image.file(File(book.image), height: 200)
             ),
-
+             
             const SizedBox(width: 16),
 
             //info

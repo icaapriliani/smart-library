@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+
 
 class AddBookScreen extends StatefulWidget {
   final Map<String, dynamic>? book;
@@ -10,17 +13,18 @@ class AddBookScreen extends StatefulWidget {
 }
 
 class _AddBookScreenState extends State<AddBookScreen> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController authorController = TextEditingController();
-  final TextEditingController yearController = TextEditingController();
-  final TextEditingController pagesController = TextEditingController();
-  final TextEditingController languageController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  final  titleController = TextEditingController();
+  final  authorController = TextEditingController();
+  final  yearController = TextEditingController();
+  final  pagesController = TextEditingController();
+  final languageController = TextEditingController();
+  final  descriptionController = TextEditingController();
   double progress = 0;
   double rating = 0;
   String selectedCategory = "Novel";
+   File? selectedImage;
 
-  final List<String> categories = [
+  final categories = [
     "Novel",
     "Pengembangan Diri",
     "Sejarah",
@@ -32,144 +36,224 @@ class _AddBookScreenState extends State<AddBookScreen> {
     if (progress > 0) return "Reading";
     return "New";
   }
+  Future<void> pickImage() async {
+    final picked = await ImagePicker(). pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      setState(() {
+        selectedImage = File(picked.path);
+      });
+    }
+  }
   @override
   void initState() {
     super.initState();
 
     if (widget.book != null) {
-      titleController.text = widget.book!['title'];
-      authorController.text = widget.book!['author'];
+      titleController.text = widget.book!['title'] ?? "";
+      authorController.text = widget.book!['author'] ?? "";
       progress = (widget.book!['progress'] ?? 0).toDouble();
       rating = (widget.book!['rating'] ?? 0).toDouble();
       selectedCategory = widget.book?["category"] ?? "Novel";
-      yearController.text = widget.book!['year'].toString();
-      pagesController.text = widget.book!['pages'].toString();
-      languageController.text = widget.book!['language'];
-      descriptionController.text = widget.book!['description'];
+      yearController.text = (widget.book!['year'] ?? 0).toString();
+      pagesController.text = (widget.book!['pages'] ?? 0).toString();
+      languageController.text = widget.book!['language'] ?? "";
+      descriptionController.text = widget.book!['description'] ?? "";
     }
   }
-
+  
+  Widget buildCard({required Widget child}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
   @override
   Widget build(BuildContext context) {
       final isEdit = widget.book != null;
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? "Edit Buku" : "Tambah Buku"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            //judul
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: "Judul Buku"),
+             //cover
+            GestureDetector(
+              onTap: pickImage,
+              child: Container(
+                height: 180,
+                width: 120,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.grey.shade200,
+                  image: selectedImage != null
+                      ? DecorationImage(
+                          image: FileImage(selectedImage!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: selectedImage == null
+                    ? const Icon(Icons.add_a_photo, size: 30)
+                    : null,
+              ),
             ),
-            const SizedBox(height: 12),
+
+            const SizedBox(height: 20),
+
+            //judul
+           buildCard(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: titleController,
+                    decoration:
+                        const InputDecoration(labelText: "Judul Buku"),
+                  ),
             //penulis
             TextField(
               controller: authorController,
               decoration: const InputDecoration(labelText: "Penulis"),
             ),
-            const SizedBox(height: 12),
+        
             //kategori
-            DropdownButtonFormField(
+            DropdownButtonFormField<String>(
               value: selectedCategory,
-              items: categories.map((cat) {
-                return DropdownMenuItem(value: cat, child: Text(cat));
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedCategory = value!;
-                });
-              },
-              decoration: const InputDecoration(labelText: "Kategori"),
+                    decoration:
+                        const InputDecoration(labelText: "Kategori"),
+                    items: categories
+                        .map((e) =>
+                            DropdownMenuItem(value: e, child: Text(e)))
+                        .toList(),
+                    onChanged: (val) {
+                      setState(() {
+                        selectedCategory = val!;
+                         });
+                    },
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
 
             //tahun
+             buildCard(
+              child: Column(
+                children: [
             TextField(
               controller: yearController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: "Tahun Terbit"),
             ),
-            const SizedBox(height: 12),
+    
             //pages
             TextField(
               controller: pagesController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: "Jumlah Halaman"),
             ),
-            const SizedBox(height: 12),
+  
 
             //bahasa
             TextField(
               controller: languageController,
               decoration: const InputDecoration(labelText: "Bahasa"),
             ),
-            const SizedBox(height: 12),
-
-            //description
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(labelText: "Deskripsi"),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 20),
-
-            //progres
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Progress: ${progress.toInt()}%"),
-            ),
-            Slider(
-              value: progress,
-              min: 0,
-              max: 100,
-              label: progress.toInt().toString(),
-              onChanged: (value) {
-                setState(() {
-                  progress = value;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-
-            //rating
-             Align(
-              alignment: Alignment.centerLeft,
-              child: Text("Rating: ${rating.toInt()}"),
+                ],
+              ),
             ),
 
-            Row(
-              children: List.generate(5, (index) {
-                return IconButton(
-                  onPressed: () {
-                    setState(() {
-                      rating = index + 1;
-                    });
-                  },
-                  icon: Icon(
-                    Icons.star,
-                    color: index < rating ? Colors.amber : Colors.grey,
+            /// ===== PROGRESS =====
+            buildCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Progress: ${progress.toInt()}%"),
+                  Slider(
+                    value: progress,
+                    min: 0,
+                    max: 100,
+                    activeColor: Colors.deepPurple,
+                    onChanged: (val) {
+                      setState(() {
+                        progress = val;
+                      });
+                    },
                   ),
-                );
-              }),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
-            //tombol simpan
-            ElevatedButton(
-              onPressed: () {
-                if (titleController.text.isEmpty ||
-                    authorController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Judul dan Penulis tidak boleh kosong"),
+
+            /// ===== RATING =====
+            buildCard(
+              child: Row(
+                children: List.generate(5, (i) {
+                  return IconButton(
+                    onPressed: () {
+                      setState(() {
+                        rating = i + 1;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.star,
+                      size: 28,
+                      color:
+                          i < rating ? Colors.amber : Colors.grey,
                     ),
                   );
-                  return;
-                }
-                final newBook = {
+                }),
+              ),
+            ),
+
+            /// ===== DESKRIPSI =====
+            buildCard(
+              child: TextField(
+                controller: descriptionController,
+                maxLines: 4,
+                decoration:
+                    const InputDecoration(labelText: "Deskripsi"),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            /// ===== BUTTON =====
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                onPressed: () {
+                  if (titleController.text.isEmpty ||
+                      authorController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Judul & Penulis wajib diisi"),
+                      ),
+                    );
+                    return;
+                  }
+
+                   Navigator.pop(context, {
                   "title": titleController.text,
                   "author": authorController.text,
                   "progress": progress.toInt(),
@@ -180,11 +264,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   "pages": int.tryParse(pagesController.text) ?? 0,
                   "language": languageController.text,
                   "description": descriptionController.text,
-                };
+               "image": selectedImage?.path ??
+                        widget.book?["image"],
+                });
+                },
+                child: Text(isEdit ? "Update" : "Simpan"),
 
-                Navigator.pop(context, newBook);
-              },
-            child: Text(isEdit ? "Update" : "Simpan"),
+              ),
+            
+              
+           
             ),
           ],
         ),

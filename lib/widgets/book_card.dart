@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
-
+import 'dart:io';
 class BookCard extends StatelessWidget {
   final Book book;
   final VoidCallback? onDelete;
@@ -41,12 +41,19 @@ class BookCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              book.image,
-              width: 70,
-              height: 95,
-              fit: BoxFit.cover,
-            ),
+            child: book.image.startsWith("http")
+    ? Image.network(
+        book.image,
+        width: 70,
+        height: 95,
+        fit: BoxFit.cover,
+      )
+    : Image.file(
+        File(book.image),
+        width: 70,
+        height: 95,
+        fit: BoxFit.cover,
+      ),
           ),
           const SizedBox(width: 14),
           //info
