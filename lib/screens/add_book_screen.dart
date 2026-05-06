@@ -101,13 +101,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: Colors.grey.shade200,
-                  image: selectedImage != null
-                      ? DecorationImage(
-                          image: FileImage(selectedImage!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
+                 
+  
+  image: selectedImage != null
+      ? DecorationImage(
+          image: FileImage(selectedImage!),
+          fit: BoxFit.cover,
+        )
+      : (widget.book?["image"] != null
+          ? DecorationImage(
+              image: widget.book!["image"].toString().startsWith("http")
+                  ? NetworkImage(widget.book!["image"])
+                  : FileImage(File(widget.book!["image"])) as ImageProvider,
+              fit: BoxFit.cover,
+            )
+          : null),
+),
                 child: selectedImage == null
                     ? const Icon(Icons.add_a_photo, size: 30)
                     : null,

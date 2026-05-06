@@ -34,9 +34,26 @@ class DetailBookScreen extends StatelessWidget {
             //gambar
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child:book.image.startsWith("http")
-  ? Image.network(book.image, height: 200)
-  : Image.file(File(book.image), height: 200)
+              child:(book.image != null && book.image.toString().isNotEmpty)
+    ? (book.image.toString().startsWith("http")
+        ? Image.network(
+            book.image,
+            height: 140,
+            width: 100,
+            fit: BoxFit.cover,
+          )
+        : Image.file(
+            File(book.image),
+            height: 140,
+            width: 100,
+            fit: BoxFit.cover,
+          ))
+    : Container(
+        height: 140,
+        width: 100,
+        color: Colors.grey.shade300,
+        child: const Icon(Icons.image),
+      ),
             ),
              
             const SizedBox(width: 16),
@@ -172,6 +189,7 @@ class DetailBookScreen extends StatelessWidget {
                               "pages": book.pages,
                               "language": book.language,
                               "description": book.description,
+                              "image":book.image
                             },
                           ),
                         ),

@@ -342,8 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             language: updated["language"] ?? book.language,
                             description:
                                 updated["description"] ?? book.description,
-                              image: books[result["index"]].image,
-                          );
+                              image: updated["image"], );
                         });
 
                         saveBooks();
