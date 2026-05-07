@@ -63,31 +63,7 @@ class CategoryScreen extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        selectedItemColor: Colors.deepPurple,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const[
-          BottomNavigationBarItem(
-            icon:Icon(Icons.home),
-            label: "Beranda",
-            ),
-             BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: "Kategori",
-          ),
-           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: "Statistik",
-          ),
-           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Proful",
-          ),
-
-        ],
-      ),
+      
     );
 
   }

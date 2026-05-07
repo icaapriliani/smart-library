@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_library/screens/main_screen.dart';
 import 'screens/home_screen.dart';
 void main() {
   runApp(const MyApp());
@@ -13,7 +14,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'smart library',
-      home:  HomeScreen(),
+       theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+      ),
+
+      home:  const MainScreen(),
     );
   }
 }
