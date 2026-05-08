@@ -1,10 +1,26 @@
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
+import '../models/book.dart';
 
 class CategoryScreen extends StatelessWidget {
-  CategoryScreen({super.key});
+final List<Book> books;
 
-  final List<Map<String, dynamic>> categories=[
+  const CategoryScreen({
+    super.key,
+    required this.books,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+
+    final Map<String, int> categoryCount = {};
+
+    for (var book in books) {
+      categoryCount[book.category] =
+          (categoryCount[book.category] ?? 0) + 1;
+    }
+
+  final categories=[
     {
      "title":"Novel", 
      "count":12,
@@ -37,9 +53,8 @@ class CategoryScreen extends StatelessWidget {
     },
   ];
 
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
+  
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FD),
 
@@ -54,12 +69,15 @@ class CategoryScreen extends StatelessWidget {
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final category=categories[index];
+          final title = category["title"] as String;
+
+          final count = categoryCount[title] ?? 0;
 
           return CategoryTile(
-            title: category["title"],
-            count: category["count"],
-            icon: category["icon"],
-            color: category["color"],
+            title: title,
+            count: count,
+            icon: category["icon"] as IconData,
+            color: category["color"] as Color,
           );
         },
       ),

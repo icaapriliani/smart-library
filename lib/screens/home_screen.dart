@@ -8,19 +8,97 @@ import 'dart:convert';
 import 'statistics_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({super.key});
+   final Function(int) onTabChange;
+  final List<Book> books;
 
-  @override
+  const HomeScreen({ required this.onTabChange,
+    super.key,
+    required this.books,
+  });
+   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+ String searchQuery = "";
+  String selectedStatus = "All";
   @override
   void initState() {
     super.initState();
     loadBooks();
   }
+  String getStatus(int progress) {
+    if (progress == 100) return "Done";
+    if (progress > 0) return "Reading";
+    return "New";
+  }
+
+
+
+  Future<void> saveBooks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bookList = widget.books
+        .map(
+          (book) => {
+            "title": book.title,
+            "author": book.author,
+            "rating": book.rating,
+            "progress": book.progress,
+            "status": book.status,
+            "image": book.image,
+            "category": book.category,
+            "year": book.year,
+            "pages": book.pages,
+            "language": book.language,
+            "description": book.description,
+          },
+        )
+        .toList();
+    prefs.setString("books", jsonEncode(bookList));
+  }
+
+  Future<void> loadBooks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString("books");
+
+    if (data != null) {
+      final List decoded = jsonDecode(data);
+      setState(() {
+        widget.books.clear();
+
+        widget.books.addAll(
+      decoded.map(
+              (item) => Book(
+                title: item["title"],
+                author: item["author"],
+                rating: item["rating"].toDouble(),
+                progress: item["progress"],
+                status: item["status"],
+                image: item["image"],
+                category: item["category"] ?? "Lainnya",
+                year: item["year"] ?? 0,
+                pages: item["pages"] ?? 0,
+                language: item["language"] ?? "Indonesia",
+                description: item["description"] ?? "",
+              ),
+            )
+        );
+      });
+    }
+  }
+
   
+ 
+  
+
+  Widget buildStat(String title, int value){
+    return Column(
+      children: [
+        Text(value.toString(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+        Text(title, style: const TextStyle(color: Colors.grey),)
+        ],
+    );
+  }
   Widget buildStatItem(IconData icon, String title, int value) {
   return Column(
     children: [
@@ -48,113 +126,18 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 }
 
-
-  Future<void> saveBooks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bookList = books
-        .map(
-          (book) => {
-            "title": book.title,
-            "author": book.author,
-            "rating": book.rating,
-            "progress": book.progress,
-            "status": book.status,
-            "image": book.image,
-            "category": book.category,
-            "year": book.year,
-            "pages": book.pages,
-            "language": book.language,
-            "description": book.description,
-          },
-        )
-        .toList();
-    prefs.setString("books", jsonEncode(bookList));
-  }
-
-  Future<void> loadBooks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString("books");
-
-    if (data != null) {
-      final List decoded = jsonDecode(data);
-      setState(() {
-        books = decoded
-            .map(
-              (item) => Book(
-                title: item["title"],
-                author: item["author"],
-                rating: item["rating"].toDouble(),
-                progress: item["progress"],
-                status: item["status"],
-                image: item["image"],
-                category: item["category"] ?? "Lainnya",
-                year: item["year"] ?? 0,
-                pages: item["pages"] ?? 0,
-                language: item["language"] ?? "Indonesia",
-                description: item["description"] ?? "",
-              ),
-            )
-            .toList();
-      });
-    }
-  }
-
-  List<Book> books = [
-    Book(
-      title: "laskar pelangi",
-      author: "Andrea Hirata",
-      rating: 4.7,
-      progress: 70,
-      status: "Reading",
-      category: "Novel",
-      image: "https://picsum.photos/200/300",
-      year: 2005,
-      pages: 529,
-      language: "Indonesia",
-      description: "Cerita inspiratif tentang anak-anak Belitung.",
-    ),
-    Book(
-      title: "Atomic Habits",
-      author: "James Clear",
-      rating: 4.8,
-      progress: 100,
-      status: "Done",
-      category: "Pengembangan Diri",
-      image: "https://picsum.photos/200/300",
-      year: 2010,
-      pages: 300,
-      language: "English",
-      description: "Cerita inspiratif tentang anak-anak Belitung.",
-    ),
-  ];
-  String searchQuery = "";
-  String selectedStatus = "All";
-  String getStatus(int progress) {
-    if (progress == 100) return "Done";
-    if (progress > 0) return "Reading";
-    return "New";
-  }
-
-  Widget buildStat(String title, int value){
-    return Column(
-      children: [
-        Text(value.toString(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-        Text(title, style: const TextStyle(color: Colors.grey),)
-        ],
-    );
-  }
-
   @override
   
   Widget build(BuildContext context) {
+    final books = widget.books;
     final filteredBooks = books.where((book) {
-      final Matchsearch =
+      final matchsearch =
           book.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
           book.author.toLowerCase().contains(searchQuery.toLowerCase());
-      final Matchstatus =
+      final matchstatus =
           selectedStatus == "All" || book.status == selectedStatus;
 
-      return Matchsearch && Matchstatus;
+      return matchsearch && matchstatus;
     }).toList();
 
     return Scaffold(
@@ -164,11 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Smart Library"),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          
-        ],
+       
       ),
-      //header
       
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -176,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
           
           crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-        
+        //header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -257,7 +237,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
+            //filter
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -391,6 +371,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               
             ),
+            
+            //stat card
             Container(
                margin: const EdgeInsets.only(top: 16),
               padding: const EdgeInsets.all(16),
@@ -414,15 +396,10 @@ children:  [
               fontWeight: FontWeight.bold,
             ),
           ),
-         GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => StatisticsScreen(books: books),
-          ),
-        );
-      },
+        GestureDetector(
+  onTap: () {
+    widget.onTabChange(2);
+  },
       child: const Text(
         "Lihat Detail",
         style: TextStyle(color: Colors.white70),
