@@ -28,6 +28,12 @@ class _MainScreenState extends State<MainScreen> {
     description: "Buku pengembangan diri",
   ),
 ];
+List<String> categories = [
+    "Novel",
+    "Pengembangan Diri",
+    "Sejarah",
+    "Bisnis",
+  ];
 
 
  void onItemTapped(int index) {
@@ -42,8 +48,19 @@ class _MainScreenState extends State<MainScreen> {
  Widget build(BuildContext context) {
 
   final screens = [
-    HomeScreen(books: books, onTabChange: onItemTapped,),
-    CategoryScreen(books: books),
+    HomeScreen(books: books, 
+    categories:categories,
+     onTabChange: onItemTapped,),
+CategoryScreen(
+        categories: categories,
+        books: books,
+        onAddCategory: (newCategory) {
+          setState(() {
+            categories.add(newCategory);
+
+          });
+        },
+      ),
     StatisticsScreen(books: books),
     const Center(
       child: Text("Profile Screen"),

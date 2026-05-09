@@ -5,8 +5,9 @@ import 'package:image_picker/image_picker.dart';
 
 class AddBookScreen extends StatefulWidget {
   final Map<String, dynamic>? book;
+  final List<String> categories;
 
-  const AddBookScreen({super.key, this.book});
+  const AddBookScreen({super.key, this.book, required this.categories,});
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -24,13 +25,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   String selectedCategory = "Novel";
    File? selectedImage;
 
-  final categories = [
-    "Novel",
-    "Pengembangan Diri",
-    "Sejarah",
-    "Bisnis",
-    "Teknologi",
-  ];
+  
   String getStatus(int progress) {
     if (progress == 100) return "Done";
     if (progress > 0) return "Reading";
@@ -145,7 +140,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               value: selectedCategory,
                     decoration:
                         const InputDecoration(labelText: "Kategori"),
-                    items: categories
+                    items: widget.categories
                         .map((e) =>
                             DropdownMenuItem(value: e, child: Text(e)))
                         .toList(),

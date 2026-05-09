@@ -5,8 +5,9 @@ import 'dart:io';
 class DetailBookScreen extends StatelessWidget {
   final Book book;
   final int index;
+  final List<String> categories;
 
-  const DetailBookScreen({super.key, required this.book, required this.index,});
+  const DetailBookScreen({super.key, required this.book, required this.index, required this.categories,});
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +179,7 @@ class DetailBookScreen extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => AddBookScreen(
+                            categories:categories,
                             book: {
                               "title": book.title,
                               "author": book.author,

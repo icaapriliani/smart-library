@@ -9,11 +9,14 @@ import 'statistics_screen.dart';
 
 class HomeScreen extends StatefulWidget {
    final Function(int) onTabChange;
+    final List<String>categories;
   final List<Book> books;
+ 
 
   const HomeScreen({ required this.onTabChange,
     super.key,
     required this.books,
+    required this.categories,
   });
    @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -284,11 +287,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (_) => DetailBookScreen(
                             book: book,
                             index: realIndex,
+                            categories: widget.categories,
                           ),
                         ),
                       );
 
-                      /// 🔥 TERIMA DATA DARI DETAIL
+                      /// 🔥 terima data dari detail
                       if (result != null) {
                           if (result["delete"] == true) {
     setState(() {
@@ -332,6 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => AddBookScreen(
+                             categories: widget.categories,
                               book: {
                                 "title": book.title,
                                 "author": book.author,
@@ -437,7 +442,7 @@ children:  [
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddBookScreen()),
+            MaterialPageRoute(builder: (context) => AddBookScreen(categories:widget.categories)),
           );
           if (result != null) {
             setState(() {
@@ -454,7 +459,7 @@ children:  [
                   pages: result["pages"] ?? 0,
                   language: result["language"] ?? "Indonesia",
                   description: result["description"] ?? "",
-                  image: "https://picsum.photos/200/300",
+                     image: result["image"] ?? "",
                 ),
               );
               saveBooks();
