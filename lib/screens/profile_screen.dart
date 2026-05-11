@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
 import '../models/book.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -11,7 +13,72 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool isDarkMode = false;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _toggleDarkMode(bool val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDark', val);
+    themeNotifier.value = val ? ThemeMode.dark : ThemeMode.light;
+    setState(() {});
+  }
+
+  Future<void> _showEditProfileDialog() async {
+    final nameController = TextEditingController(text: userNameNotifier.value);
+    final imageController = TextEditingController(text: userImageNotifier.value);
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Edit Profil"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: "Nama Pengguna",
+                hintText: "Masukkan nama Anda",
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: imageController,
+              decoration: const InputDecoration(
+                labelText: "URL Foto Profil",
+                hintText: "Masukkan URL gambar",
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6A5AE0),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('userName', nameController.text);
+              await prefs.setString('userImage', imageController.text);
+              userNameNotifier.value = nameController.text;
+              userImageNotifier.value = imageController.text;
+              if (mounted) Navigator.pop(context);
+            },
+            child: const Text("Simpan"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +127,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: Column(
                       children: [
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const SizedBox(width: 48), // Spasi seimbang dengan IconButton
+                            const Text(
                               "Profil Saya",
                               style: TextStyle(
                                 color: Colors.white,
@@ -71,43 +139,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            IconButton(
+                              onPressed: _showEditProfileDialog,
+                              icon: const Icon(Icons.edit, color: Colors.white),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 30),
                         // Avatar & Info
                         Row(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Colors.white24,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const CircleAvatar(
-                                radius: 40,
-                                backgroundImage: NetworkImage("https://picsum.photos/200/300"),
-                              ),
+                            ValueListenableBuilder<String>(
+                              valueListenable: userImageNotifier,
+                              builder: (context, imageUrl, _) {
+                                return Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white24,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 40,
+                                    backgroundImage: NetworkImage(imageUrl),
+                                  ),
+                                );
+                              },
                             ),
                             const SizedBox(width: 20),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  "Ica Apriliani",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ValueListenableBuilder<String>(
+                                    valueListenable: userNameNotifier,
+                                    builder: (context, name, _) {
+                                      return Text(
+                                        name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    },
                                   ),
-                                ),
-                                Text(
-                                  "Pembaca Antusias",
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 14,
+                                  const Text(
+                                    "Pembaca Antusias",
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -227,13 +311,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Icons.dark_mode_outlined,
                           "Mode Gelap",
                           trailing: Switch(
-                            value: isDarkMode,
+                            value: themeNotifier.value == ThemeMode.dark,
                             activeColor: const Color(0xFF6A5AE0),
-                            onChanged: (val) {
-                              setState(() {
-                                isDarkMode = val;
-                              });
-                            },
+                            onChanged: _toggleDarkMode,
                           ),
                         ),
                         _buildDivider(),

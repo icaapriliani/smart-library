@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import '../models/book.dart';
 import '../widgets/book_card.dart';
 import 'add_book_screen.dart';
@@ -168,10 +169,15 @@ class _HomeScreenState extends State<HomeScreen> {
             //left text
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children:const [
+              children: [
                 
-                  Text("Halo, Ica",
-                  style: TextStyle(color: Colors.grey),
+                  ValueListenableBuilder<String>(
+                    valueListenable: userNameNotifier,
+                    builder: (context, name, _) {
+                      return Text("Halo, $name",
+                        style: const TextStyle(color: Colors.grey),
+                      );
+                    },
                   ),
                   SizedBox(height: 4),
                   Text(
@@ -204,8 +210,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 16),
                 //avatar
-                const CircleAvatar(
-                  backgroundImage: NetworkImage("https://picsum.photos/200/300"),
+                ValueListenableBuilder<String>(
+                  valueListenable: userImageNotifier,
+                  builder: (context, imageUrl, _) {
+                    return CircleAvatar(
+                      backgroundImage: NetworkImage(imageUrl),
+                    );
+                  },
                 ),
             
               ],
