@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
+import '../main.dart';
 
 class CategoryScreen extends StatefulWidget {
    final List<String> categories;
@@ -25,38 +26,30 @@ class _CategoryScreenState extends State<CategoryScreen> {
       builder: (context) {
         return AlertDialog(
 
-          title: const Text("Tambah Kategori"),
-
-          content: TextField(
-            controller: controller,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
-            decoration: InputDecoration(
-              hintText: "Masukkan kategori",
-              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
+          title: Text(Localization.text('tambah_buku')),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: Localization.text('kategori'),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
           ),
-
-          actions: [
-
-            TextButton(
-              onPressed: () {
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(Localization.text('batal')),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                widget.onAddCategory(controller.text);
                 Navigator.pop(context);
-              },
-              child: const Text("Batal"),
-            ),
-
-            ElevatedButton(
-              onPressed: () {
-
-                if (controller.text.isNotEmpty) {
-                    widget.onAddCategory(controller.text);
-
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text("Tambah"),
-            ),
-          ],
+              }
+            },
+            child: Text(Localization.text('simpan')),
+          ),
+        ],
         );
       },
     );
@@ -65,12 +58,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-
-      backgroundColor: Theme.of(context).colorScheme.surface,
-
-      appBar: AppBar(
-        title: const Text("Kategori Buku"),
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: Text(Localization.text('kategori')),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -106,6 +100,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
   );
 },
       ),
+        );
+      },
     );
   }
 }

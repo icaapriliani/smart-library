@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import '../main.dart';
 
 
 class AddBookScreen extends StatefulWidget {
@@ -96,9 +97,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
   @override
   Widget build(BuildContext context) {
       final isEdit = widget.book != null;
-    return Scaffold(
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
       appBar: AppBar(
-        title: Text(isEdit ? "Edit Buku" : "Tambah Buku"),
+        title: Text(isEdit ? Localization.text('edit_buku') : Localization.text('tambah_buku')),
+        centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -147,7 +152,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     controller: titleController,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
-                      labelText: "Judul Buku",
+                      labelText: Localization.text('judul_buku'),
                       labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
@@ -156,7 +161,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               controller: authorController,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
-                labelText: "Penulis",
+                labelText: Localization.text('penulis'),
                 labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
@@ -167,7 +172,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               dropdownColor: Theme.of(context).colorScheme.surface,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
-                      labelText: "Kategori",
+                      labelText: Localization.text('kategori'),
                       labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                     items: widget.categories
@@ -193,7 +198,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               keyboardType: TextInputType.number,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
-                labelText: "Tahun Terbit",
+                labelText: Localization.text('tahun_terbit'),
                 labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
@@ -204,7 +209,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               keyboardType: TextInputType.number,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
-                labelText: "Jumlah Halaman",
+                labelText: Localization.text('jumlah_halaman'),
                 labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
@@ -215,7 +220,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               controller: languageController,
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
-                labelText: "Bahasa",
+                labelText: Localization.text('bahasa'),
                 labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
@@ -228,7 +233,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Progress: ${progress.toInt()}%", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                  Text("${Localization.text('progress')}: ${progress.toInt()}%", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                   Slider(
                     value: progress,
                     min: 0,
@@ -328,6 +333,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
           ],
         ),
       ),
+    );
+      },
     );
   }
 }

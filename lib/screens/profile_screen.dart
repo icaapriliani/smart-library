@@ -59,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       onPressed: () async {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('selectedLanguage', lang);
+        languageNotifier.value = lang;
         setState(() {
           _selectedLanguage = lang;
         });
@@ -286,45 +287,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     double targetProgress = completedBooks / 10.0;
     if (targetProgress > 1.0) targetProgress = 1.0;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Header dengan Gradien
-            Stack(
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.background,
+          body: SingleChildScrollView(
+            child: Column(
               children: [
-                Container(
-                  height: 280,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF6A5AE0), Color(0xFF8E7CFF)],
+                // Header dengan Gradien
+                Stack(
+                  children: [
+                    Container(
+                      height: 280,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF6A5AE0), Color(0xFF8E7CFF)],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
+                      ),
                     ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    ),
-                  ),
-                ),
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Column(
                           children: [
-                            const SizedBox(width: 48), // Spasi seimbang dengan IconButton
-                            const Text(
-                              "Profil Saya",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const SizedBox(width: 48),
+                                Text(
+                                  Localization.text('profile'),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                             IconButton(
                               onPressed: _showEditProfileDialog,
                               icon: const Icon(Icons.edit, color: Colors.white),
@@ -403,9 +407,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text(
-                                    "Target Bacaan 2024",
-                                    style: TextStyle(
+                                  Text(
+                                    "${Localization.text('target')} 2024",
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -446,7 +450,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   // Ringkasan Bacaan
                   Text(
-                    "Ringkasan Bacaan",
+                    Localization.text('ringkasan'),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -457,7 +461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     children: [
                       _buildSummaryCard(
-                        "Total Buku",
+                        Localization.text('total_buku'),
                         totalBooks.toString(),
                         Icons.collections_bookmark,
                         const Color(0xFF6A5AE0).withOpacity(0.1),
@@ -465,7 +469,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(width: 15),
                       _buildSummaryCard(
-                        "Selesai",
+                        Localization.text('selesai'),
                         completedBooks.toString(),
                         Icons.check_circle_rounded,
                         const Color(0xFF4CAF50).withOpacity(0.1),
@@ -479,7 +483,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 25),
                   // Pengaturan
                   Text(
-                    "Pengaturan",
+                    Localization.text('pengaturan'),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -513,7 +517,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _buildDivider(),
                         _buildSettingItem(
                           Icons.notifications_none,
-                          "Notifikasi",
+                          Localization.text('notifikasi'),
                           trailing: Switch(
                             value: _isNotificationsEnabled,
                             activeColor: Theme.of(context).colorScheme.primary,
@@ -523,7 +527,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _buildDivider(),
                         _buildSettingItem(
                           Icons.language,
-                          "Bahasa",
+                          Localization.text('bahasa'),
                           trailing: Text(
                             _selectedLanguage,
                             style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -537,7 +541,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 25),
                   // Tentang
                   Text(
-                    "Tentang Aplikasi",
+                    Localization.text('tentang'),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -561,7 +565,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         _buildSettingItem(
                           Icons.info_outline,
-                          "Tentang Aplikasi",
+                          Localization.text('tentang'),
                           onTap: _showAboutDialog,
                           trailing: Text("v1.0.0",
                               style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -569,25 +573,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _buildDivider(),
                         _buildSettingItem(
                           Icons.help_outline,
-                          "Bantuan & FAQ",
+                          Localization.text('bantuan'),
                           onTap: _showHelpDialog,
                         ),
                         _buildDivider(),
                         _buildSettingItem(
                           Icons.privacy_tip_outlined,
-                          "Kebijakan Privasi",
+                          Localization.text('kebijakan'),
                           onTap: _showPrivacyPolicyDialog,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 30),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+      },
     );
   }
 
@@ -669,7 +674,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Kategori Favorit",
+                Localization.text('favorit'),
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 14,

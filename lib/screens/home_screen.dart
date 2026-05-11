@@ -131,32 +131,55 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 }
 
-  @override
-  
-  Widget build(BuildContext context) {
-    final books = widget.books;
-    final filteredBooks = books.where((book) {
-      final matchsearch =
-          book.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
-          book.author.toLowerCase().contains(searchQuery.toLowerCase());
-      final matchstatus =
-          selectedStatus == "All" || book.status == selectedStatus;
-
-      return matchsearch && matchstatus;
-    }).toList();
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-
-      appBar: AppBar(
-        title: const Text("Smart Library"),
+  Widget _buildFilterChip(String label, String status) {
+    final isSelected = selectedStatus == status;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        selectedColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        onSelected: (_) {
+          setState(() {
+            selectedStatus = status;
+          });
+        },
       ),
-      
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          
-          crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        final books = widget.books;
+        final filteredBooks = books.where((book) {
+          final matchsearch =
+              book.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+              book.author.toLowerCase().contains(searchQuery.toLowerCase());
+          final matchstatus =
+              selectedStatus == "All" || book.status == selectedStatus;
+
+          return matchsearch && matchstatus;
+        }).toList();
+
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          appBar: AppBar(
+            title: const Text("Smart Library"),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
         children: [
         //header
         Row(
@@ -253,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
             },
               decoration: InputDecoration(
-                hintText: "Cari buku, penulis, atau kategori...",
+                hintText: Localization.text('cari'),
                 hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 suffixIcon: Icon(Icons.tune, color: Theme.of(context).colorScheme.onSurfaceVariant),
@@ -266,30 +289,12 @@ class _HomeScreenState extends State<HomeScreen> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: ["All", "New","Reading", "Done"].map((status) {
-                  final isSelected = selectedStatus == status;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(status),
-                      selected: isSelected,
-                      selectedColor: Theme.of(context).colorScheme.primary,
-                      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      onSelected: (_) {
-                        setState(() {
-                          selectedStatus = status;
-                        });
-                        //filter berdasarkan status
-                      },
-                    ),
-                  );
-                }).toList(),
+                children: [
+                  _buildFilterChip(Localization.text('semua'), "All"),
+                  _buildFilterChip(Localization.text('baru'), "New"),
+                  _buildFilterChip(Localization.text('membaca'), "Reading"),
+                  _buildFilterChip(Localization.text('selesai'), "Done"),
+                ],
               ),
             ),
 
@@ -426,10 +431,11 @@ class _HomeScreenState extends State<HomeScreen> {
 Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
 children:  [
-          const Text(
-            "Statistik Membaca",
-            style: TextStyle(
+          Text(
+            Localization.text('statistik_membaca'),
+            style: const TextStyle(
               color: Colors.white,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -450,16 +456,9 @@ children:  [
       Row(
         mainAxisAlignment:MainAxisAlignment.spaceAround,
         children: [
-           buildStatItem(Icons.menu_book, "Total", books.length),
-          buildStatItem(Icons.check_circle, "Selesai",
-              books.where((b) => b.status == "Done").length),
-          buildStatItem(Icons.auto_stories, "Reading",
-              books.where((b) => b.status == "Reading").length),
-          buildStatItem(Icons.book, "New",
-              books.where((b) => b.status == "New").length),
-
-
-      
+          buildStatItem(Icons.book, Localization.text('total_buku'), books.length),
+          buildStatItem(Icons.hourglass_empty, Localization.text('membaca'), books.where((b) => b.status == "Reading").length),
+          buildStatItem(Icons.check_circle, Localization.text('selesai'), books.where((b) => b.status == "Done").length),
        ],
                   ),
                 ],
@@ -501,6 +500,8 @@ children:  [
         },
         child: const Icon(Icons.add),
       ),
+    );
+      },
     );
   }
 }

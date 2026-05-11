@@ -5,6 +5,90 @@ import 'screens/main_screen.dart';
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 final ValueNotifier<String> userNameNotifier = ValueNotifier("Ica");
 final ValueNotifier<String> userImageNotifier = ValueNotifier("https://picsum.photos/200/300");
+final ValueNotifier<String> languageNotifier = ValueNotifier("Indonesia");
+
+class Localization {
+  static final Map<String, Map<String, String>> _values = {
+    'Indonesia': {
+      'home': 'Home',
+      'kategori': 'Kategori',
+      'statistik': 'Statistik',
+      'profile': 'Profil',
+      'tambah_buku': 'Tambah Buku',
+      'edit_buku': 'Edit Buku',
+      'penulis': 'Penulis',
+      'progress': 'Progres',
+      'deskripsi': 'Deskripsi',
+      'bahasa': 'Bahasa',
+      'notifikasi': 'Notifikasi',
+      'tentang': 'Tentang Aplikasi',
+      'kebijakan': 'Kebijakan Privasi',
+      'bantuan': 'Bantuan',
+      'simpan': 'Simpan',
+      'hapus': 'Hapus',
+      'cari': 'Cari buku...',
+      'statistik_membaca': 'Statistik Membaca',
+      'total_buku': 'Total Buku',
+      'selesai': 'Selesai',
+      'membaca': 'Membaca',
+      'baru': 'Baru',
+      'semua': 'Semua',
+      'ringkasan': 'Ringkasan',
+      'target': 'Target Bacaan',
+      'favorit': 'Kategori Favorit',
+      'pengaturan': 'Pengaturan',
+      'batal': 'Batal',
+      'tahun': 'Tahun Terbit',
+      'halaman': 'Jumlah Halaman',
+      'pilih_kategori': 'Pilih Kategori',
+      'judul_buku': 'Judul Buku',
+      'tahun_terbit': 'Tahun Terbit',
+      'jumlah_halaman': 'Jumlah Halaman',
+      'by': 'oleh',
+    },
+    'English': {
+      'home': 'Home',
+      'kategori': 'Category',
+      'statistik': 'Statistics',
+      'profile': 'Profile',
+      'tambah_buku': 'Add Book',
+      'edit_buku': 'Edit Book',
+      'penulis': 'Author',
+      'progress': 'Progress',
+      'deskripsi': 'Description',
+      'bahasa': 'Language',
+      'notifikasi': 'Notifications',
+      'tentang': 'About App',
+      'kebijakan': 'Privacy Policy',
+      'bantuan': 'Help',
+      'simpan': 'Save',
+      'hapus': 'Delete',
+      'cari': 'Search books...',
+      'statistik_membaca': 'Reading Statistics',
+      'total_buku': 'Total Books',
+      'selesai': 'Done',
+      'membaca': 'Reading',
+      'baru': 'New',
+      'semua': 'All',
+      'ringkasan': 'Summary',
+      'target': 'Reading Target',
+      'favorit': 'Favorite Category',
+      'pengaturan': 'Settings',
+      'batal': 'Cancel',
+      'tahun': 'Release Year',
+      'halaman': 'Pages',
+      'pilih_kategori': 'Select Category',
+      'judul_buku': 'Book Title',
+      'tahun_terbit': 'Release Year',
+      'jumlah_halaman': 'Total Pages',
+      'by': 'by',
+    },
+  };
+
+  static String text(String key) {
+    return _values[languageNotifier.value]?[key] ?? key;
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +99,7 @@ void main() async {
   
   userNameNotifier.value = prefs.getString('userName') ?? "Ica";
   userImageNotifier.value = prefs.getString('userImage') ?? "https://picsum.photos/200/300";
+  languageNotifier.value = prefs.getString('selectedLanguage') ?? "Indonesia";
   
   runApp(const MyApp());
 }

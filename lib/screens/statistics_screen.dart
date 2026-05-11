@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../main.dart';
 
 class StatisticsScreen extends StatelessWidget {
   final List<Book> books;
@@ -20,62 +21,65 @@ final avgProgress = books.isEmpty
                 .reduce((a, b) => a + b) /
             books.length;
 
-    return Scaffold(
-      
-       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        
-        title: Text(
-          "Reading Statistics",
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onBackground,
-            fontWeight: FontWeight.bold,),
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.background,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            title: Text(
+              Localization.text('statistik_membaca'),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onBackground,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-      ),
-      body: SingleChildScrollView(
+          ),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //top card
+                buildTopCard(context, totalBooks),
+                const SizedBox(height: 28),
+                //ringkasn
+                buildSectionTitle(context, Localization.text('ringkasan')),
 
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            //top card
-             buildTopCard(context, totalBooks),
-             const SizedBox(height: 28),
-             //ringkasn
-              buildSectionTitle(context, "Ringkasan"),
+                const SizedBox(height: 16),
+                buildSummaryRow(
+                  context,
+                  doneBooks,
+                  readingBooks,
+                  newBooks,
+                ),
+                const SizedBox(height: 28),
+                //progres
+                buildSectionTitle(context, Localization.text('progress')),
 
-             const SizedBox(height: 16),
-            buildSummaryRow(
-              context,
-              doneBooks,
-              readingBooks,
-              newBooks,
+                const SizedBox(height: 16),
+
+                buildProgressCard(context, avgProgress),
+
+                const SizedBox(height: 30),
+
+                //chart title
+                buildChartTitle(context),
+
+                const SizedBox(height: 18),
+
+                //chart
+                buildMonthlyChart(context),
+
+                const SizedBox(height: 30),
+              ],
             ),
-            const SizedBox(height: 28), 
-            //progres
-            buildSectionTitle(context, "Progress Membaca"),
-
-            const SizedBox(height: 16),
-
-            buildProgressCard(context, avgProgress),
-
-            const SizedBox(height: 30),
-
-            //chart title
-             buildChartTitle(context),
-
-            const SizedBox(height: 18),
-
-            //chart
-           buildMonthlyChart(context),
-
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -92,33 +96,41 @@ final avgProgress = books.isEmpty
   }
 
 //top card
-Widget buildTopCard(BuildContext context, int totalBooks) {
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(22),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(28), 
-      gradient: const LinearGradient(begin: Alignment.topLeft,
+  Widget buildTopCard(BuildContext context, int totalBooks) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [ Color(0xFF6A5AE0),
+          colors: [
+            Color(0xFF6A5AE0),
             Color(0xFF8E7CFF),
-            ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.deepPurple.withOpacity(0.25),blurRadius: 18, offset: const Offset(0, 8),
-              ),
-            ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Total Buku", style: TextStyle(
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.deepPurple.withOpacity(0.25),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            Localization.text('total_buku'),
+            style: const TextStyle(
               color: Colors.white70,
-              fontSize: 14,),),
-               const SizedBox(height: 8),
-
-               Text("$totalBooks Buku",
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "$totalBooks Buku",
             style: const TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
@@ -142,7 +154,7 @@ Widget buildSummaryRow(
         Expanded(
           child: buildMiniCard(
             context,
-            title: "Done",
+            title: Localization.text('selesai'),
             value: done,
             icon: Icons.check_circle,
             color: Colors.green,
@@ -152,7 +164,7 @@ const SizedBox(width: 12),
 Expanded(
           child: buildMiniCard(
             context,
-            title: "Reading",
+            title: Localization.text('membaca'),
             value: reading,
             icon: Icons.auto_stories,
             color: Colors.orange,
@@ -162,7 +174,7 @@ Expanded(
         const SizedBox(width: 12),
         Expanded(child: buildMiniCard(
             context,
-            title: "New",
+            title: Localization.text('baru'),
             value: newBook,
             icon: Icons.menu_book,
             color: Colors.blueGrey,),

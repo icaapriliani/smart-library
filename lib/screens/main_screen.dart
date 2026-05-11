@@ -7,6 +7,7 @@ import 'profile_screen.dart';
 import '../models/book.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../main.dart';
 
 class MainScreen extends StatefulWidget{
   const MainScreen({super.key});
@@ -123,36 +124,39 @@ CategoryScreen(
     ProfileScreen(books: books),
   ];
 
-    return Scaffold(
-      body: screens[selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
+          body: screens[selectedIndex],
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: selectedIndex,
+            onTap: onItemTapped,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            items: [
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.home),
+                label: Localization.text('home'),
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.grid_view),
+                label: Localization.text('kategori'),
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.bar_chart),
+                label: Localization.text('statistik'),
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.person),
+                label: Localization.text('profile'),
+              ),
+            ],
           ),
-BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: "Kategori",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: "Statistik",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
-          ),
-
-        ],
-      ),
-    
+        );
+      },
     );
 
 }

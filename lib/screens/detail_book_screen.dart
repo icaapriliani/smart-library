@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'add_book_screen.dart';
 import 'dart:io';
+import '../main.dart';
 class DetailBookScreen extends StatelessWidget {
   final Book book;
   final int index;
@@ -26,7 +27,10 @@ class DetailBookScreen extends StatelessWidget {
       );
     }
 
-    return Scaffold(
+    return ValueListenableBuilder<String>(
+      valueListenable: languageNotifier,
+      builder: (context, lang, _) {
+        return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -111,9 +115,9 @@ class DetailBookScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
 
-            //judul
+            //author
             Text(
-              "by ${book.author}",
+              "${Localization.text('by')} ${book.author}",
               style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
@@ -149,7 +153,7 @@ class DetailBookScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Progress Membaca", style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
+                        Text(Localization.text('progress'), style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
                       Text("${book.progress}%", style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
                       ],
                     ),
@@ -165,10 +169,11 @@ class DetailBookScreen extends StatelessWidget {
                     const SizedBox(height: 24),
 
                   //detail info
-                  buildInfo(Icons.category, "Kategori", book.category),
-                  buildInfo(Icons.calendar_today, "Tahun Terbit", book.year.toString()),
-                  buildInfo(Icons.menu_book, "Jumlah Halaman", "${book.pages} halaman"),
-                  buildInfo(Icons.language, "Bahasa", book.language),
+                  buildInfo(Icons.person_outline, Localization.text('penulis'), book.author),
+                  buildInfo(Icons.grid_view, Localization.text('kategori'), book.category),
+                  buildInfo(Icons.calendar_today_outlined, Localization.text('tahun'), book.year.toString()),
+                  buildInfo(Icons.auto_stories_outlined, Localization.text('halaman'), book.pages.toString()),
+                  buildInfo(Icons.language_outlined, Localization.text('bahasa'), book.language),
 
                  
             const SizedBox(height: 16),
@@ -275,6 +280,8 @@ class DetailBookScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+      },
     );
   }
 }
