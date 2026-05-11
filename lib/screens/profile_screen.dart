@@ -15,9 +15,181 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool _isNotificationsEnabled = true;
+  String _selectedLanguage = "Indonesia";
+
   @override
   void initState() {
     super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isNotificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
+      _selectedLanguage = prefs.getString('selectedLanguage') ?? "Indonesia";
+    });
+  }
+
+  Future<void> _toggleNotifications(bool val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notificationsEnabled', val);
+    setState(() {
+      _isNotificationsEnabled = val;
+    });
+  }
+
+  Future<void> _showLanguageDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Pilih Bahasa"),
+        children: [
+          _buildLanguageOption("Indonesia"),
+          _buildLanguageOption("English"),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageOption(String lang) {
+    return SimpleDialogOption(
+      onPressed: () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('selectedLanguage', lang);
+        setState(() {
+          _selectedLanguage = lang;
+        });
+        if (mounted) Navigator.pop(context);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(lang, style: const TextStyle(fontSize: 16)),
+            if (_selectedLanguage == lang)
+              const Icon(Icons.check_circle, color: Color(0xFF6A5AE0)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Bantuan & FAQ"),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: const [
+              _FAQItem(
+                question: "Bagaimana cara menambah buku?",
+                answer: "Klik tombol '+' di halaman Home, isi data buku, lalu simpan.",
+              ),
+              _FAQItem(
+                question: "Bagaimana cara mengedit buku?",
+                answer: "Klik buku yang ingin diedit, lalu tekan ikon pensil di pojok kanan atas.",
+              ),
+              _FAQItem(
+                question: "Bagaimana cara mengubah tema?",
+                answer: "Masuk ke Profile, lalu aktifkan switch Mode Gelap.",
+              ),
+              _FAQItem(
+                question: "Bagaimana cara menambah kategori?",
+                answer: "Buka menu Kategori, klik tombol '+', masukkan nama kategori baru.",
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Tutup")),
+        ],
+      ),
+    );
+  }
+
+  void _showPrivacyPolicyDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Kebijakan Privasi"),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Data Anda Aman",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                "Smart Library menyimpan data buku dan preferensi Anda secara lokal di perangkat. Kami tidak mengirimkan data pribadi Anda ke server eksternal.",
+              ),
+              SizedBox(height: 16),
+              Text(
+                "Penggunaan Data",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              SizedBox(height: 8),
+              Text(
+                "Data digunakan hanya untuk keperluan fungsionalitas aplikasi seperti statistik membaca dan manajemen koleksi buku pribadi.",
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Mengerti")),
+        ],
+      ),
+    );
+  }
+
+  void _showAboutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Tentang Aplikasi"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircleAvatar(
+              radius: 40,
+              backgroundColor: Color(0xFF6A5AE0),
+              child: Icon(Icons.library_books, color: Colors.white, size: 40),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "Smart Library",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+            const Text("Versi 1.0.0"),
+            const SizedBox(height: 16),
+            const Text(
+              "Aplikasi manajemen perpustakaan pribadi yang modern dan elegan untuk mencatat progres bacaan Anda.",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "© 2024 Smart Library Team",
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Tutup")),
+        ],
+      ),
+    );
   }
 
   Future<void> _toggleDarkMode(bool val) async {
@@ -339,9 +511,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         _buildDivider(),
-                        _buildSettingItem(Icons.notifications_none, "Notifikasi"),
+                        _buildSettingItem(
+                          Icons.notifications_none,
+                          "Notifikasi",
+                          trailing: Switch(
+                            value: _isNotificationsEnabled,
+                            activeColor: Theme.of(context).colorScheme.primary,
+                            onChanged: _toggleNotifications,
+                          ),
+                        ),
                         _buildDivider(),
-                        _buildSettingItem(Icons.language, "Bahasa"),
+                        _buildSettingItem(
+                          Icons.language,
+                          "Bahasa",
+                          trailing: Text(
+                            _selectedLanguage,
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ),
+                          onTap: _showLanguageDialog,
+                        ),
                       ],
                     ),
                   ),
@@ -371,11 +559,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildSettingItem(Icons.info_outline, "Versi Aplikasi", trailing: Text("v1.0.0", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
+                        _buildSettingItem(
+                          Icons.info_outline,
+                          "Tentang Aplikasi",
+                          onTap: _showAboutDialog,
+                          trailing: Text("v1.0.0",
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        ),
                         _buildDivider(),
-                        _buildSettingItem(Icons.star_outline, "Beri Rating"),
+                        _buildSettingItem(
+                          Icons.help_outline,
+                          "Bantuan & FAQ",
+                          onTap: _showHelpDialog,
+                        ),
                         _buildDivider(),
-                        _buildSettingItem(Icons.privacy_tip_outlined, "Kebijakan Privasi"),
+                        _buildSettingItem(
+                          Icons.privacy_tip_outlined,
+                          "Kebijakan Privasi",
+                          onTap: _showPrivacyPolicyDialog,
+                        ),
                       ],
                     ),
                   ),
@@ -488,7 +690,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSettingItem(IconData icon, String title, {Widget? trailing}) {
+  Widget _buildSettingItem(IconData icon, String title, {Widget? trailing, VoidCallback? onTap}) {
     return ListTile(
       leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface),
       title: Text(
@@ -500,7 +702,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       trailing: trailing ?? Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 
@@ -511,6 +713,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
       indent: 20,
       endIndent: 20,
       color: Theme.of(context).colorScheme.surfaceVariant,
+    );
+  }
+}
+
+class _FAQItem extends StatelessWidget {
+  final String question;
+  final String answer;
+
+  const _FAQItem({required this.question, required this.answer});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            question,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            answer,
+            style: const TextStyle(color: Colors.grey, fontSize: 13),
+          ),
+        ],
+      ),
     );
   }
 }
