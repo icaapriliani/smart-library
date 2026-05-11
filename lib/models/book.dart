@@ -10,6 +10,7 @@ class Book {
   final int pages;
   final String language;
   final String description;
+  bool isFavorite;
 
   Book({
     required this.title,
@@ -23,5 +24,6 @@ class Book {
     required this.pages,
     required this.language,
     required this.description,
+    this.isFavorite = false,
   });
 }

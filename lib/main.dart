@@ -45,6 +45,7 @@ class Localization {
       'tahun_terbit': 'Tahun Terbit',
       'jumlah_halaman': 'Jumlah Halaman',
       'by': 'oleh',
+      'buku_favorit': 'Buku Favorit',
     },
     'English': {
       'home': 'Home',
@@ -72,7 +73,7 @@ class Localization {
       'semua': 'All',
       'ringkasan': 'Summary',
       'target': 'Reading Target',
-      'favorit': 'Favorite Category',
+      'favorit': 'Favorite',
       'pengaturan': 'Settings',
       'batal': 'Cancel',
       'tahun': 'Release Year',
@@ -82,6 +83,7 @@ class Localization {
       'tahun_terbit': 'Release Year',
       'jumlah_halaman': 'Total Pages',
       'by': 'by',
+      'buku_favorit': 'Favorite Books',
     },
   };
 

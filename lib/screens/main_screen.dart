@@ -57,6 +57,7 @@ class _MainScreenState extends State<MainScreen> {
               pages: item["pages"] ?? 0,
               language: item["language"] ?? "Indonesia",
               description: item["description"] ?? "",
+              isFavorite: item["isFavorite"] ?? false,
             )));
       });
     }

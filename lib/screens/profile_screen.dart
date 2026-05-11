@@ -287,6 +287,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     double targetProgress = completedBooks / 10.0;
     if (targetProgress > 1.0) targetProgress = 1.0;
 
+    final favoriteBooks = widget.books.where((b) => b.isFavorite).toList();
+    final favoriteCount = favoriteBooks.length;
+
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
@@ -475,12 +478,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const Color(0xFF4CAF50).withOpacity(0.1),
                         const Color(0xFF4CAF50),
                       ),
+                      const SizedBox(width: 15),
+                      _buildSummaryCard(
+                        Localization.text('favorit'),
+                        favoriteCount.toString(),
+                        Icons.favorite,
+                        Colors.red.withOpacity(0.1),
+                        Colors.red,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 15),
                   _buildFavoriteCard(favoriteCategory),
 
                   const SizedBox(height: 25),
+                  // List Buku Favorit
+                  if (favoriteBooks.isNotEmpty) ...[
+                    Text(
+                      Localization.text('buku_favorit'),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    SizedBox(
+                      height: 120,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: favoriteBooks.length,
+                        itemBuilder: (context, index) {
+                          final book = favoriteBooks[index];
+                          return Container(
+                            width: 90,
+                            margin: const EdgeInsets.only(right: 12),
+                            child: Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: book.image.isNotEmpty
+                                      ? (book.image.startsWith('http')
+                                          ? Image.network(book.image, height: 80, width: 90, fit: BoxFit.cover)
+                                          : Image.file(File(book.image), height: 80, width: 90, fit: BoxFit.cover))
+                                      : Container(
+                                          height: 80,
+                                          width: 90,
+                                          color: Theme.of(context).colorScheme.surfaceVariant,
+                                          child: const Icon(Icons.image),
+                                        ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  book.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 10),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 25),
+                  ],
                   // Pengaturan
                   Text(
                     Localization.text('pengaturan'),
