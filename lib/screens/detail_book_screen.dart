@@ -11,15 +11,30 @@ class DetailBookScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget buildInfo(IconData icon, String title, String value){
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(width: 8),
+          Expanded(child: Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface))),
+            Text(value, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FD),
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButton(),
-        actions: const[
-          Icon( Icons.share),
-          SizedBox(width: 12),
+        actions: [
+          Icon(Icons.share, color: Theme.of(context).colorScheme.onBackground),
+          const SizedBox(width: 12),
         ],
       ),
       body:SingleChildScrollView(
@@ -35,7 +50,7 @@ class DetailBookScreen extends StatelessWidget {
             //gambar
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child:(book.image != null && book.image.toString().isNotEmpty)
+              child: (book.image.isNotEmpty)
     ? (book.image.toString().startsWith("http")
         ? Image.network(
             book.image,
@@ -52,8 +67,8 @@ class DetailBookScreen extends StatelessWidget {
     : Container(
         height: 140,
         width: 100,
-        color: Colors.grey.shade300,
-        child: const Icon(Icons.image),
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        child: Icon(Icons.image, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
             ),
              
@@ -71,9 +86,12 @@ class DetailBookScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         book.title,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                        style: TextStyle(
+                          fontSize: 18, 
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onBackground,
+                        ),
                       ),
-                    ),
                     ),
                     
 
@@ -96,13 +114,13 @@ class DetailBookScreen extends StatelessWidget {
             //judul
             Text(
               "by ${book.author}",
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
 
             Row(children: [const Icon(Icons.star, color: Colors.amber, size: 16),
              const SizedBox(width: 4),
-            Text("${book.rating}"),
+            Text("${book.rating}", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             ],),
 
           const SizedBox(height: 8),
@@ -117,7 +135,7 @@ class DetailBookScreen extends StatelessWidget {
                         ),
                         child: Text(
                           book.status,
-                          style: const TextStyle(color: Colors.green),
+                          style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -131,8 +149,8 @@ class DetailBookScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text("Progress Membaca"),
-                      Text("${book.progress}%"),
+                        Text("Progress Membaca", style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
+                      Text("${book.progress}%", style: TextStyle(color: Theme.of(context).colorScheme.onBackground)),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -141,8 +159,8 @@ class DetailBookScreen extends StatelessWidget {
                       value: book.progress / 100,
                       minHeight: 6,
                       borderRadius: BorderRadius.circular(10),
-                      backgroundColor: Colors.grey.shade300,
-                      color: Colors.deepPurple,
+                      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(height: 24),
 
@@ -156,17 +174,17 @@ class DetailBookScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             //deskripsi
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Deskripsi",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onBackground),
               ),
             ),
             const SizedBox(height: 6),
             Text(
              book.description,
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
 
              const SizedBox(height: 24),
@@ -207,6 +225,10 @@ class DetailBookScreen extends StatelessWidget {
                     },
                     icon: const Icon(Icons.edit),
                     label: const Text("Edit"),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.primary,
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                    ),
                   ),
                 ),
 
@@ -255,53 +277,6 @@ class DetailBookScreen extends StatelessWidget {
       ),
     );
   }
-
-  // 🔥 STATUS BADGE DINAMIS
-  Widget buildStatusBadge(String status) {
-    Color bgColor;
-    Color textColor;
-
-    switch (status) {
-      case "Done":
-        bgColor = Colors.green.withOpacity(0.1);
-        textColor = Colors.green;
-        break;
-      case "Reading":
-        bgColor = Colors.orange.withOpacity(0.1);
-        textColor = Colors.orange;
-        break;
-      default:
-        bgColor = Colors.grey.withOpacity(0.1);
-        textColor = Colors.grey;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(color: textColor),
-      ),
-    );
-  }
-
-Widget buildInfo(IconData icon, String title, String value){
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey),
-        const SizedBox(width: 6),
-       Expanded(child: Text(title)),
-        Text(value, style: const TextStyle(color: Colors.grey),
-        ),
-      ],
-    ),
-  );
-}
 }
 
                 

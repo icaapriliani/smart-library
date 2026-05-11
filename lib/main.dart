@@ -26,20 +26,54 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
-      builder: (_, ThemeMode currentMode, __) {
+      builder: (context, currentMode, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'smart library',
           themeMode: currentMode,
           theme: ThemeData(
-            primarySwatch: Colors.deepPurple,
             useMaterial3: true,
-            brightness: Brightness.light,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.light,
+              surface: const Color(0xFFF8F9FD),
+            ),
+            scaffoldBackgroundColor: const Color(0xFFF8F9FD),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              iconTheme: IconThemeData(color: Colors.black87),
+              titleTextStyle: TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: const Color(0xFFF8F9FD),
+              surfaceTintColor: Colors.transparent,
+              titleTextStyle: const TextStyle(color: Colors.black87, fontSize: 20, fontWeight: FontWeight.bold),
+              contentTextStyle: const TextStyle(color: Colors.black87),
+            ),
           ),
           darkTheme: ThemeData(
-            primarySwatch: Colors.deepPurple,
             useMaterial3: true,
-            brightness: Brightness.dark,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              brightness: Brightness.dark,
+              surface: const Color(0xFF1A1C1E),
+              onSurface: const Color(0xFFE2E2E6),
+              onSurfaceVariant: const Color(0xFFC2C7CF),
+            ),
+            scaffoldBackgroundColor: const Color(0xFF111315),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              iconTheme: IconThemeData(color: Color(0xFFE2E2E6)),
+              titleTextStyle: TextStyle(color: Color(0xFFE2E2E6), fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            dialogTheme: const DialogThemeData(
+              backgroundColor: Color(0xFF1A1C1E),
+              surfaceTintColor: Colors.transparent,
+              titleTextStyle: TextStyle(color: Color(0xFFE2E2E6), fontSize: 20, fontWeight: FontWeight.bold),
+              contentTextStyle: TextStyle(color: Color(0xFFE2E2E6)),
+            ),
           ),
           home: const MainScreen(),
         );

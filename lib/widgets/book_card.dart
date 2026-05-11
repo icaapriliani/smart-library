@@ -29,13 +29,15 @@ class BookCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-          color: Colors.grey.withOpacity(0.08), blurRadius: 15,  offset: const Offset(0, 5), 
-      ),
-          ],
+            color: Colors.black.withOpacity(0.05), 
+            blurRadius: 15,  
+            offset: const Offset(0, 5), 
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -66,22 +68,29 @@ class BookCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(child: 
-                  Text(
-                  book.title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                
-                overflow:TextOverflow.ellipsis,
-                    ),),
-                    const Icon( Icons.more_vert, color: Colors.grey, size: 18,),
+                      Text(
+                        book.title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold, 
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Icon(Icons.more_vert, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
               ],
             ),
             const SizedBox(height: 4),
-                Text(book.author, style: const TextStyle(color: Colors.grey)),
+                Text(
+                  book.author, 
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
                 const SizedBox(height: 4),
                 //kategori
                 Text(
                   book.category,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 6),
                 //rating
@@ -100,7 +109,7 @@ class BookCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Text(
                       book.rating.toString(),
-                      style: const TextStyle(fontSize: 13),
+                      style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ],
                 ),
@@ -124,7 +133,7 @@ class BookCard extends StatelessWidget {
                     ),
 
                     Icon(
-                      Icons.bookmark_border, color: Colors.grey.shade400,
+                      Icons.bookmark_border, color: Theme.of(context).colorScheme.onSurfaceVariant,
                     )
 
                 ],),
@@ -139,15 +148,16 @@ class BookCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: book.progress / 100,
                         minHeight: 6,
-                        backgroundColor: Colors.grey.shade200,
-                        color: book.status == "Done" ? Colors.green : Colors.deepPurple,
+                        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                        color: book.status == "Done" ? Colors.green : Theme.of(context).colorScheme.primary,
                       ),
                       ),
                     ),
                     const SizedBox(width: 8),
                   
-                    Text("${book.progress}%", style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                      ),
+                    Text("${book.progress}%", 
+                      style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
                   ],
                 ),
               ],

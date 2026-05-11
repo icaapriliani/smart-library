@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../main.dart';
 import '../models/book.dart';
 
@@ -25,6 +27,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {});
   }
 
+  Future<void> _pickImage(TextEditingController imageController) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      imageController.text = image.path;
+    }
+  }
+
   Future<void> _showEditProfileDialog() async {
     final nameController = TextEditingController(text: userNameNotifier.value);
     final imageController = TextEditingController(text: userImageNotifier.value);
@@ -47,9 +57,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 10),
             TextField(
               controller: imageController,
-              decoration: const InputDecoration(
-                labelText: "URL Foto Profil",
-                hintText: "Masukkan URL gambar",
+              decoration: InputDecoration(
+                labelText: "Foto Profil (URL atau Jalur File)",
+                hintText: "Masukkan URL atau pilih dari galeri",
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.photo_library),
+                  onPressed: () => _pickImage(imageController),
+                ),
               ),
             ),
           ],
@@ -101,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (targetProgress > 1.0) targetProgress = 1.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FD),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -160,7 +174,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   child: CircleAvatar(
                                     radius: 40,
-                                    backgroundImage: NetworkImage(imageUrl),
+                                    backgroundColor: Colors.white24,
+                                    backgroundImage: imageUrl.isNotEmpty
+                                        ? (imageUrl.startsWith('http')
+                                            ? NetworkImage(imageUrl)
+                                            : FileImage(File(imageUrl)) as ImageProvider)
+                                        : null,
+                                    child: imageUrl.isEmpty
+                                        ? const Icon(Icons.person, color: Colors.white, size: 40)
+                                        : null,
                                   ),
                                 );
                               },
@@ -251,12 +273,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Ringkasan Bacaan
-                  const Text(
+                  Text(
                     "Ringkasan Bacaan",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1F1D2B),
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -284,22 +306,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 25),
                   // Pengaturan
-                  const Text(
+                  Text(
                     "Pengaturan",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1F1D2B),
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
                   ),
                   const SizedBox(height: 15),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -312,7 +334,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           "Mode Gelap",
                           trailing: Switch(
                             value: themeNotifier.value == ThemeMode.dark,
-                            activeColor: const Color(0xFF6A5AE0),
+                            activeColor: Theme.of(context).colorScheme.primary,
                             onChanged: _toggleDarkMode,
                           ),
                         ),
@@ -326,22 +348,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 25),
                   // Tentang
-                  const Text(
+                  Text(
                     "Tentang Aplikasi",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1F1D2B),
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
                   ),
                   const SizedBox(height: 15),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -349,7 +371,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildSettingItem(Icons.info_outline, "Versi Aplikasi", trailing: const Text("v1.0.0", style: TextStyle(color: Colors.grey))),
+                        _buildSettingItem(Icons.info_outline, "Versi Aplikasi", trailing: Text("v1.0.0", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
                         _buildDivider(),
                         _buildSettingItem(Icons.star_outline, "Beri Rating"),
                         _buildDivider(),
@@ -372,11 +394,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -396,16 +418,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 15),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1F1D2B),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.grey,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -420,11 +442,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -444,19 +466,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Kategori Favorit",
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontSize: 14,
                 ),
               ),
               Text(
                 category,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F1D2B),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -468,16 +490,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildSettingItem(IconData icon, String title, {Widget? trailing}) {
     return ListTile(
-      leading: Icon(icon, color: const Color(0xFF1F1D2B)),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface),
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: Color(0xFF1F1D2B),
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
-      trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
+      trailing: trailing ?? Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
       onTap: () {},
     );
   }
@@ -488,7 +510,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       thickness: 1,
       indent: 20,
       endIndent: 20,
-      color: Colors.grey.withOpacity(0.1),
+      color: Theme.of(context).colorScheme.surfaceVariant,
     );
   }
 }

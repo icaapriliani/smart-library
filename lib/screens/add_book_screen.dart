@@ -62,11 +62,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
           ),
         ],
@@ -95,7 +95,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 width: 120,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  color: Colors.grey.shade200,
+                  color: Theme.of(context).colorScheme.surfaceVariant,
                  
   
   image: selectedImage != null
@@ -113,7 +113,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           : null),
 ),
                 child: selectedImage == null
-                    ? const Icon(Icons.add_a_photo, size: 30)
+                    ? Icon(Icons.add_a_photo, size: 30, color: Theme.of(context).colorScheme.onSurfaceVariant)
                     : null,
               ),
             ),
@@ -126,20 +126,31 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 children: [
                   TextField(
                     controller: titleController,
-                    decoration:
-                        const InputDecoration(labelText: "Judul Buku"),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                    decoration: InputDecoration(
+                      labelText: "Judul Buku",
+                      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
                   ),
             //penulis
             TextField(
               controller: authorController,
-              decoration: const InputDecoration(labelText: "Penulis"),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              decoration: InputDecoration(
+                labelText: "Penulis",
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
             ),
         
             //kategori
             DropdownButtonFormField<String>(
               value: selectedCategory,
-                    decoration:
-                        const InputDecoration(labelText: "Kategori"),
+              dropdownColor: Theme.of(context).colorScheme.surface,
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                    decoration: InputDecoration(
+                      labelText: "Kategori",
+                      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ),
                     items: widget.categories
                         .map((e) =>
                             DropdownMenuItem(value: e, child: Text(e)))
@@ -161,21 +172,33 @@ class _AddBookScreenState extends State<AddBookScreen> {
             TextField(
               controller: yearController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Tahun Terbit"),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              decoration: InputDecoration(
+                labelText: "Tahun Terbit",
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
             ),
     
             //pages
             TextField(
               controller: pagesController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Jumlah Halaman"),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              decoration: InputDecoration(
+                labelText: "Jumlah Halaman",
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
             ),
   
 
             //bahasa
             TextField(
               controller: languageController,
-              decoration: const InputDecoration(labelText: "Bahasa"),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+              decoration: InputDecoration(
+                labelText: "Bahasa",
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
             ),
                 ],
               ),
@@ -186,12 +209,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Progress: ${progress.toInt()}%"),
+                  Text("Progress: ${progress.toInt()}%", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                   Slider(
                     value: progress,
                     min: 0,
                     max: 100,
-                    activeColor: Colors.deepPurple,
+                    activeColor: Theme.of(context).colorScheme.primary,
+                    inactiveColor: Theme.of(context).colorScheme.surfaceVariant,
                     onChanged: (val) {
                       setState(() {
                         progress = val;
@@ -216,7 +240,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       Icons.star,
                       size: 28,
                       color:
-                          i < rating ? Colors.amber : Colors.grey,
+                          i < rating ? Colors.amber : Theme.of(context).colorScheme.surfaceVariant,
                     ),
                   );
                 }),
@@ -228,8 +252,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
               child: TextField(
                 controller: descriptionController,
                 maxLines: 4,
-                decoration:
-                    const InputDecoration(labelText: "Deskripsi"),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                decoration: InputDecoration(
+                  labelText: "Deskripsi",
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
               ),
             ),
 
@@ -240,7 +267,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),

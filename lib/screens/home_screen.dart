@@ -6,7 +6,7 @@ import 'add_book_screen.dart';
 import 'detail_book_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'statistics_screen.dart';
+import 'dart:io';
 
 class HomeScreen extends StatefulWidget {
    final Function(int) onTabChange;
@@ -108,8 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
     children: [
       CircleAvatar(
         radius: 16,
-        backgroundColor: Colors.white,
-        child: Icon(icon, size: 16, color: Colors.deepPurple),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        child: Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
       ),
       const SizedBox(height: 6),
       Text(
@@ -145,13 +145,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FD),
+      backgroundColor: Theme.of(context).colorScheme.background,
 
       appBar: AppBar(
         title: const Text("Smart Library"),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-       
       ),
       
       body: Padding(
@@ -175,19 +172,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     valueListenable: userNameNotifier,
                     builder: (context, name, _) {
                       return Text("Halo, $name",
-                        style: const TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                       );
                     },
                   ),
                   SizedBox(height: 4),
-                  Text(
-                    "smart library", 
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    Text(
+                      "smart library", 
+                      style: TextStyle(
+                        fontSize: 24, 
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
                     ),
                      SizedBox(height: 4),
         Text(
           "Kelola koleksi buku pribadimu dengan mudah",
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
               ],
             ),
@@ -214,7 +215,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   valueListenable: userImageNotifier,
                   builder: (context, imageUrl, _) {
                     return CircleAvatar(
-                      backgroundImage: NetworkImage(imageUrl),
+                      backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      backgroundImage: imageUrl.isNotEmpty
+                          ? (imageUrl.startsWith('http')
+                              ? NetworkImage(imageUrl)
+                              : FileImage(File(imageUrl)) as ImageProvider)
+                          : null,
+                      child: imageUrl.isEmpty
+                          ? Icon(Icons.person, color: Theme.of(context).colorScheme.primary)
+                          : null,
                     );
                   },
                 ),
@@ -228,11 +237,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ///search
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.15),
+                    color: Colors.black.withOpacity(0.05),
                     blurRadius: 10,
                   ),
                 ],
@@ -244,8 +253,9 @@ class _HomeScreenState extends State<HomeScreen> {
             },
               decoration: InputDecoration(
                 hintText: "Cari buku, penulis, atau kategori...",
-                prefixIcon:  Icon(Icons.search),
-                suffixIcon: Icon (Icons.tune),
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                suffixIcon: Icon(Icons.tune, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 border: InputBorder.none,
                 ),
               ),
@@ -262,10 +272,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ChoiceChip(
                       label: Text(status),
                       selected: isSelected,
-                      selectedColor: Colors.deepPurple,
-                      backgroundColor: Colors.grey.shade200,
+                      selectedColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                       labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
+                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),

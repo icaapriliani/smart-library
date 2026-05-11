@@ -29,8 +29,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+            decoration: InputDecoration(
               hintText: "Masukkan kategori",
+              hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ),
 
@@ -65,7 +67,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
     return Scaffold(
 
-      backgroundColor: const Color(0xFFF8F9FD),
+      backgroundColor: Theme.of(context).colorScheme.surface,
 
       appBar: AppBar(
         title: const Text("Kategori Buku"),
@@ -132,7 +134,7 @@ class CategoryTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(18),
       ),
 
@@ -173,17 +175,17 @@ class CategoryTile extends StatelessWidget {
 
                 Text(
                   "$count Buku",
-                  style: const TextStyle(
-                    color: Colors.grey,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
 
-          const Icon(
+          Icon(
             Icons.chevron_right,
-            color: Colors.grey,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ],
       ),

@@ -22,16 +22,16 @@ final avgProgress = books.isEmpty
 
     return Scaffold(
       
-       backgroundColor: const Color(0xFFF5F7FB),
+       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         
-        title: const Text(
+        title: Text(
           "Reading Statistics",
           style: TextStyle(
-            color: Colors.black,
+            color: Theme.of(context).colorScheme.onBackground,
             fontWeight: FontWeight.bold,),
             ),
       ),
@@ -42,34 +42,35 @@ final avgProgress = books.isEmpty
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             //top card
-             buildTopCard(totalBooks),
+             buildTopCard(context, totalBooks),
              const SizedBox(height: 28),
              //ringkasn
-              buildSectionTitle("Ringkasan"),
+              buildSectionTitle(context, "Ringkasan"),
 
              const SizedBox(height: 16),
             buildSummaryRow(
+              context,
               doneBooks,
               readingBooks,
               newBooks,
             ),
             const SizedBox(height: 28), 
             //progres
-            buildSectionTitle("Progress Membaca"),
+            buildSectionTitle(context, "Progress Membaca"),
 
             const SizedBox(height: 16),
 
-            buildProgressCard(avgProgress),
+            buildProgressCard(context, avgProgress),
 
             const SizedBox(height: 30),
 
             //chart title
-             buildChartTitle(),
+             buildChartTitle(context),
 
             const SizedBox(height: 18),
 
             //chart
-           buildMonthlyChart(),
+           buildMonthlyChart(context),
 
             const SizedBox(height: 30),
           ],
@@ -79,18 +80,19 @@ final avgProgress = books.isEmpty
   }
 
   //section title
-  Widget buildSectionTitle(String title) {
+  Widget buildSectionTitle(BuildContext context, String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
+        color: Theme.of(context).colorScheme.onBackground,
       ),
     );
   }
 
 //top card
-Widget buildTopCard(int totalBooks) {
+Widget buildTopCard(BuildContext context, int totalBooks) {
   return Container(
     width: double.infinity,
     padding: const EdgeInsets.all(22),
@@ -129,6 +131,7 @@ Widget buildTopCard(int totalBooks) {
 
 //summary row
 Widget buildSummaryRow(
+    BuildContext context,
     int done,
     int reading,
     int newBook,
@@ -138,6 +141,7 @@ Widget buildSummaryRow(
 
         Expanded(
           child: buildMiniCard(
+            context,
             title: "Done",
             value: done,
             icon: Icons.check_circle,
@@ -147,6 +151,7 @@ Widget buildSummaryRow(
 const SizedBox(width: 12),
 Expanded(
           child: buildMiniCard(
+            context,
             title: "Reading",
             value: reading,
             icon: Icons.auto_stories,
@@ -156,6 +161,7 @@ Expanded(
 
         const SizedBox(width: 12),
         Expanded(child: buildMiniCard(
+            context,
             title: "New",
             value: newBook,
             icon: Icons.menu_book,
@@ -165,7 +171,8 @@ Expanded(
     );
   }
   //mini card
-  Widget buildMiniCard({
+  Widget buildMiniCard(
+    BuildContext context, {
     required String title,
     required int value,
     required IconData icon,
@@ -174,7 +181,7 @@ Expanded(
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 18,),
        decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
 
         boxShadow: [
@@ -200,9 +207,10 @@ CircleAvatar(
           const SizedBox(height: 10),
           Text(
             value.toString(),
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
@@ -210,8 +218,8 @@ CircleAvatar(
 
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.grey,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
             ),
           ),
@@ -221,12 +229,12 @@ CircleAvatar(
   }
 
   //progres card
-  Widget buildProgressCard(double avgProgress) {
+  Widget buildProgressCard(BuildContext context, double avgProgress) {
     return Container(
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
 
         boxShadow: [
@@ -246,10 +254,11 @@ CircleAvatar(
                 MainAxisAlignment.spaceBetween,
             children: [
 
-              const Text(
+              Text(
                 "Total Progress",
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
 
@@ -271,8 +280,8 @@ CircleAvatar(
             child: LinearProgressIndicator(
               value: avgProgress / 100,
               minHeight: 12,
-              backgroundColor: Colors.grey.shade200,
-              color: Colors.deepPurple,
+              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
         ],
@@ -280,35 +289,36 @@ CircleAvatar(
     );
   }
   //chart title
-  Widget buildChartTitle(){
+  Widget buildChartTitle(BuildContext context){
     return Row(
        mainAxisAlignment:
           MainAxisAlignment.spaceBetween,
-      children: const [
+      children: [
         Text(
           "Grafik Bulanan",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18,
-        ),
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
         ),
         Text(
           "2026",
           style: TextStyle(
-            color: Colors.grey,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
     );
   }
 //monthly chart
- Widget buildMonthlyChart() {
+ Widget buildMonthlyChart(BuildContext context) {
     return Container(
       height: 260,
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
 
         boxShadow: [
@@ -332,7 +342,7 @@ child:BarChart(
 
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: Colors.grey.shade200,
+                color: Theme.of(context).colorScheme.surfaceVariant,
                 strokeWidth: 1,
               );
             },
@@ -360,9 +370,9 @@ child:BarChart(
 
                   return Text(
                     value.toInt().toString(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: Colors.grey,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   );
                 },
@@ -383,9 +393,9 @@ child:BarChart(
 
                     child: Text(
                       months[value.toInt()],
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   );
