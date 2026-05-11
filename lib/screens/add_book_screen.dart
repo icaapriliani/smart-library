@@ -22,7 +22,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   final  descriptionController = TextEditingController();
   double progress = 0;
   double rating = 0;
-  String selectedCategory = "Novel";
+  late String selectedCategory;
    File? selectedImage;
 
   
@@ -49,11 +49,30 @@ class _AddBookScreenState extends State<AddBookScreen> {
       authorController.text = widget.book!['author'] ?? "";
       progress = (widget.book!['progress'] ?? 0).toDouble();
       rating = (widget.book!['rating'] ?? 0).toDouble();
-      selectedCategory = widget.book?["category"] ?? "Novel";
+      
+      String bookCategory = widget.book?["category"] ?? "Novel";
+      // Pastikan kategori ada di list agar Dropdown tidak crash
+      if (!widget.categories.contains(bookCategory)) {
+        widget.categories.add(bookCategory);
+      }
+      selectedCategory = bookCategory;
+
       yearController.text = (widget.book!['year'] ?? 0).toString();
       pagesController.text = (widget.book!['pages'] ?? 0).toString();
       languageController.text = widget.book!['language'] ?? "";
       descriptionController.text = widget.book!['description'] ?? "";
+    } else {
+      // Mode tambah baru: gunakan "Novel" jika ada, jika tidak gunakan elemen pertama
+      if (widget.categories.contains("Novel")) {
+        selectedCategory = "Novel";
+      } else if (widget.categories.isNotEmpty) {
+        selectedCategory = widget.categories.first;
+      } else {
+        selectedCategory = "Lainnya";
+        if (!widget.categories.contains("Lainnya")) {
+          widget.categories.add("Lainnya");
+        }
+      }
     }
   }
   

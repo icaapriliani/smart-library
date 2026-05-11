@@ -357,13 +357,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => AddBookScreen(
-                             categories: widget.categories,
+                              categories: widget.categories,
                               book: {
                                 "title": book.title,
                                 "author": book.author,
                                 "progress": book.progress,
                                 "rating": book.rating,
                                 "category": book.category,
+                                "year": book.year,
+                                "pages": book.pages,
+                                "language": book.language,
+                                "description": book.description,
+                                "image": book.image,
                               },
                             ),
                           ),
