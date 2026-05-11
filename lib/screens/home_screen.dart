@@ -10,14 +10,15 @@ import 'dart:io';
 
 class HomeScreen extends StatefulWidget {
    final Function(int) onTabChange;
-    final List<String>categories;
-  final List<Book> books;
- 
+   final List<String> categories;
+   final List<Book> books;
+   final VoidCallback onBooksUpdated;
 
   const HomeScreen({ required this.onTabChange,
     super.key,
     required this.books,
     required this.categories,
+    required this.onBooksUpdated,
   });
    @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -29,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadBooks();
+    // Data dimuat oleh MainScreen (Source of Truth)
   }
   String getStatus(int progress) {
     if (progress == 100) return "Done";
@@ -145,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
 
       appBar: AppBar(
         title: const Text("Smart Library"),
@@ -320,6 +321,8 @@ class _HomeScreenState extends State<HomeScreen> {
       books.removeAt(result["index"]);
     });
     saveBooks();
+    saveBooks();
+    widget.onBooksUpdated();
     return;
   }
   // hadle edit
@@ -342,6 +345,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
 
                         saveBooks();
+                        widget.onBooksUpdated();
                       }
                     },
                     child: BookCard(
@@ -350,6 +354,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         setState(() {
                           books.removeAt(realIndex);
                           saveBooks();
+                          widget.onBooksUpdated();
                         });
                       },
                       onEdit: () async {
@@ -393,6 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                              image: result["image"],
                             );
                             saveBooks();
+                            widget.onBooksUpdated();
                           });
                         }
                       },
@@ -485,10 +491,11 @@ children:  [
                   pages: result["pages"] ?? 0,
                   language: result["language"] ?? "Indonesia",
                   description: result["description"] ?? "",
-                     image: result["image"] ?? "",
+                      image: result["image"] ?? "",
                 ),
               );
               saveBooks();
+              widget.onBooksUpdated();
             });
           }
         },
