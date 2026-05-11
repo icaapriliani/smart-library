@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'category_screen.dart';
 import 'statistics_screen.dart';
+import 'profile_screen.dart';
 import '../models/book.dart';
 class MainScreen extends StatefulWidget{
   const MainScreen({super.key});
@@ -62,9 +63,7 @@ CategoryScreen(
         },
       ),
     StatisticsScreen(books: books),
-    const Center(
-      child: Text("Profile Screen"),
-    ),
+    ProfileScreen(books: books),
   ];
 
     return Scaffold(
