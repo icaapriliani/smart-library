@@ -3,29 +3,90 @@ import '../models/book.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../main.dart';
 
-class StatisticsScreen extends StatelessWidget {
+class StatisticsScreen extends StatefulWidget {
   final List<Book> books;
 
   const StatisticsScreen({super.key, required this.books});
+
+  @override
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
+}
+
+class _StatisticsScreenState extends State<StatisticsScreen> {
+  late int totalBooks;
+  late int doneBooks;
+  late int readingBooks;
+  late int newBooks;
+  late double avgProgress;
+  late List<double> monthsData;
+  late List<String> monthLabels;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateStats();
+  }
+
+  @override
+  void didUpdateWidget(StatisticsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.books != widget.books) {
+      _calculateStats();
+    }
+  }
+
+  void _calculateStats() {
+    final books = widget.books;
+    totalBooks = books.length;
+    doneBooks = books.where((b) => b.status == "Done").length;
+    readingBooks = books.where((b) => b.status == "Reading").length;
+    newBooks = books.where((b) => b.status == "New").length;
+
+    avgProgress = books.isEmpty
+        ? 0.0
+        : books.map((b) => b.progress).reduce((a, b) => a + b) / books.length;
+
+    final now = DateTime.now();
+    final monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+    
+    monthsData = List.generate(6, (index) {
+      final monthIndex = (now.month - (5 - index)) % 12;
+      final targetMonth = monthIndex <= 0 ? monthIndex + 12 : monthIndex;
+      final targetYear = now.year - (monthIndex <= 0 ? 1 : 0);
+
+      double score = 0;
+      for (var book in books) {
+        if (book.dateAdded != null &&
+            book.dateAdded!.year == targetYear &&
+            book.dateAdded!.month == targetMonth) {
+          score += 30;
+        }
+        if (book.dateCompleted != null &&
+            book.dateCompleted!.year == targetYear &&
+            book.dateCompleted!.month == targetMonth) {
+          score += 50;
+        } else if (book.status == "Reading" && book.dateAdded != null) {
+          if (book.dateAdded!.isBefore(DateTime(targetYear, targetMonth + 1, 1))) {
+            score += 10;
+          }
+        }
+      }
+      return score > 100 ? 100.0 : (score < 10 ? 10.0 : score);
+    });
+
+    monthLabels = List.generate(6, (index) {
+      final monthIdx = (now.month - (5 - index) - 1) % 12;
+      return monthNames[monthIdx < 0 ? monthIdx + 12 : monthIdx];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final totalBooks = books.length;
-    final doneBooks = books.where((b) => b.status == "Done").length;
-    final readingBooks = books.where((b) => b.status == "Reading").length;
-    final newBooks = books.where((b) => b.status == "New").length;
-
-final avgProgress = books.isEmpty
-        ? 0.0
-        : books
-                .map((b) => b.progress)
-                .reduce((a, b) => a + b) /
-            books.length;
-
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
         return Scaffold(
-          backgroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -33,7 +94,7 @@ final avgProgress = books.isEmpty
             title: Text(
               Localization.text('statistik_membaca'),
               style: TextStyle(
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -43,37 +104,19 @@ final avgProgress = books.isEmpty
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //top card
                 buildTopCard(context, totalBooks),
                 const SizedBox(height: 28),
-                //ringkasn
                 buildSectionTitle(context, Localization.text('ringkasan')),
-
                 const SizedBox(height: 16),
-                buildSummaryRow(
-                  context,
-                  doneBooks,
-                  readingBooks,
-                  newBooks,
-                ),
+                buildSummaryRow(context, doneBooks, readingBooks, newBooks),
                 const SizedBox(height: 28),
-                //progres
                 buildSectionTitle(context, Localization.text('progress')),
-
                 const SizedBox(height: 16),
-
                 buildProgressCard(context, avgProgress),
-
                 const SizedBox(height: 30),
-
-                //chart title
                 buildChartTitle(context),
-
                 const SizedBox(height: 18),
-
-                //chart
                 buildMonthlyChart(context),
-
                 const SizedBox(height: 30),
               ],
             ),
@@ -83,19 +126,17 @@ final avgProgress = books.isEmpty
     );
   }
 
-  //section title
   Widget buildSectionTitle(BuildContext context, String title) {
     return Text(
       title,
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onBackground,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
 
-//top card
   Widget buildTopCard(BuildContext context, int totalBooks) {
     return Container(
       width: double.infinity,
@@ -105,10 +146,7 @@ final avgProgress = books.isEmpty
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF6A5AE0),
-            Color(0xFF8E7CFF),
-          ],
+          colors: [Color(0xFF6A5AE0), Color(0xFF8E7CFF)],
         ),
         boxShadow: [
           BoxShadow(
@@ -123,34 +161,21 @@ final avgProgress = books.isEmpty
         children: [
           Text(
             Localization.text('total_buku'),
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 8),
           Text(
             "$totalBooks Buku",
-            style: const TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,),
-               ),
-      ],
-    ),
-  );
-}
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
 
-//summary row
-Widget buildSummaryRow(
-    BuildContext context,
-    int done,
-    int reading,
-    int newBook,
-  ) {
+  Widget buildSummaryRow(BuildContext context, int done, int reading, int newBook) {
     return Row(
       children: [
-
         Expanded(
           child: buildMiniCard(
             context,
@@ -160,8 +185,8 @@ Widget buildSummaryRow(
             color: Colors.green,
           ),
         ),
-const SizedBox(width: 12),
-Expanded(
+        const SizedBox(width: 12),
+        Expanded(
           child: buildMiniCard(
             context,
             title: Localization.text('membaca'),
@@ -170,125 +195,80 @@ Expanded(
             color: Colors.orange,
           ),
         ),
-
         const SizedBox(width: 12),
-        Expanded(child: buildMiniCard(
+        Expanded(
+          child: buildMiniCard(
             context,
             title: Localization.text('baru'),
             value: newBook,
             icon: Icons.menu_book,
-            color: Colors.blueGrey,),
+            color: Colors.blueGrey,
+          ),
         ),
       ],
     );
   }
-  //mini card
-  Widget buildMiniCard(
-    BuildContext context, {
-    required String title,
-    required int value,
-    required IconData icon,
-    required Color color,
-  }) {
+
+  Widget buildMiniCard(BuildContext context, {required String title, required int value, required IconData icon, required Color color}) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18,),
-       decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 5)),
         ],
       ),
-child: Column(
+      child: Column(
         children: [
-CircleAvatar(
-  radius: 20,
-  backgroundColor: color.withOpacity(0.12),
-
-            child: Icon(
-              icon,
-              color: color,
-              size: 20,
-            ),
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: color.withOpacity(0.12),
+            child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(height: 10),
           Text(
             value.toString(),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).colorScheme.onSurface),
           ),
-
           const SizedBox(height: 4),
-
           Text(
             title,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
           ),
         ],
       ),
     );
   }
 
-  //progres card
   Widget buildProgressCard(BuildContext context, double avgProgress) {
     return Container(
       padding: const EdgeInsets.all(18),
-
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 5)),
         ],
       ),
-
       child: Column(
         children: [
-
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-
               Text(
                 "Total Progress",
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
               ),
-
               Text(
                 "${avgProgress.toStringAsFixed(0)}%",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
               ),
             ],
           ),
-
           const SizedBox(height: 14),
-
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
-
             child: LinearProgressIndicator(
               value: avgProgress / 100,
               minHeight: 12,
@@ -300,149 +280,94 @@ CircleAvatar(
       ),
     );
   }
-  //chart title
-  Widget buildChartTitle(BuildContext context){
+
+  Widget buildChartTitle(BuildContext context) {
     return Row(
-       mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           "Grafik Bulanan",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Theme.of(context).colorScheme.onBackground,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Theme.of(context).colorScheme.onSurface),
         ),
         Text(
           "2026",
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
     );
   }
-//monthly chart
- Widget buildMonthlyChart(BuildContext context) {
+
+  Widget buildMonthlyChart(BuildContext context) {
     return Container(
       height: 260,
       padding: const EdgeInsets.all(18),
-
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 6),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 6)),
         ],
       ),
-child:BarChart(
+      child: BarChart(
         BarChartData(
           maxY: 100,
-          alignment:BarChartAlignment.spaceAround, 
-          borderData:
-              FlBorderData(show: false),
-
+          alignment: BarChartAlignment.spaceAround,
+          borderData: FlBorderData(show: false),
           gridData: FlGridData(
             drawVerticalLine: false,
             horizontalInterval: 20,
-
             getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                strokeWidth: 1,
-              );
+              return FlLine(color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5), strokeWidth: 1);
             },
           ),
           titlesData: FlTitlesData(
-
-            topTitles: AxisTitles(
-              sideTitles:
-                  SideTitles(showTitles: false),
-            ),
-
-            rightTitles: AxisTitles(
-              sideTitles:
-                  SideTitles(showTitles: false),
-            ),
-
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 28,
                 interval: 20,
-
-                getTitlesWidget:
-                    (value, meta) {
-
+                getTitlesWidget: (value, meta) {
                   return Text(
                     value.toInt().toString(),
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   );
                 },
               ),
             ),
-
-            bottomTitles:AxisTitles(
+            bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
-                  const months=[
-                    "Jan","Feb","Mar","Apr","Mei","Jun",
-                  ];
                   return Padding(
-                    padding:
-                        const EdgeInsets.only(
-                            top: 8),
-
+                    padding: const EdgeInsets.only(top: 10),
                     child: Text(
-                      months[value.toInt()],
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                      monthLabels[value.toInt()],
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   );
                 },
               ),
             ),
           ),
- barGroups:
-              List.generate(6, (index) {
-
-            final value = books.isEmpty
-                ? 20.0
-                : books[index % books.length]
-                    .progress
-                    .toDouble();
-
+          barGroups: List.generate(6, (index) {
             return BarChartGroupData(
               x: index,
-
               barRods: [
-
                 BarChartRodData(
-                  toY: value,
-
-                  width: 18,
-borderRadius: BorderRadius.circular(8),
-gradient: const LinearGradient(begin:  Alignment.bottomCenter,
+                  toY: monthsData[index],
+                  width: 16,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                  gradient: const LinearGradient(
+                    begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
-
-                    colors: [
-                      Color(0xFF6A5AE0),
-                      Color(0xFF9C8CFF),
-                      
-
-       ],
+                    colors: [Color(0xFF6A5AE0), Color(0xFF9C8CFF)],
+                  ),
+                  backDrawRodData: BackgroundBarChartRodData(
+                    show: true,
+                    toY: 100,
+                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
                   ),
                 ),
               ],

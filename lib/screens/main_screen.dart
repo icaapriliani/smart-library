@@ -74,6 +74,8 @@ class _MainScreenState extends State<MainScreen> {
               language: item["language"] ?? "Indonesia",
               description: item["description"] ?? "",
               isFavorite: item["isFavorite"] ?? false,
+              dateAdded: item["dateAdded"] != null ? DateTime.parse(item["dateAdded"]) : null,
+              dateCompleted: item["dateCompleted"] != null ? DateTime.parse(item["dateCompleted"]) : null,
             )));
       });
     }
@@ -96,6 +98,8 @@ class _MainScreenState extends State<MainScreen> {
             "language": book.language,
             "description": book.description,
             "isFavorite": book.isFavorite,
+            "dateAdded": book.dateAdded?.toIso8601String(),
+            "dateCompleted": book.dateCompleted?.toIso8601String(),
           },
         )
         .toList();

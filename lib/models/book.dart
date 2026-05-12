@@ -11,6 +11,8 @@ class Book {
   final String language;
   final String description;
   bool isFavorite;
+  final DateTime? dateAdded;
+  final DateTime? dateCompleted;
 
   Book({
     required this.title,
@@ -25,5 +27,7 @@ class Book {
     required this.language,
     required this.description,
     this.isFavorite = false,
+    this.dateAdded,
+    this.dateCompleted,
   });
 }

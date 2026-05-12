@@ -32,13 +32,34 @@ class _HomeScreenState extends State<HomeScreen> {
   String searchQuery = "";
   String selectedStatus = "All";
   static bool _hasShownSnackbar = false;
+  List<Book> _filteredBooks = [];
 
   @override
   void initState() {
     super.initState();
+    _filterBooks();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndShowNotification();
       _updateCount();
+    });
+  }
+
+  @override
+  void didUpdateWidget(HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.books != widget.books) {
+      _filterBooks();
+    }
+  }
+
+  void _filterBooks() {
+    setState(() {
+      _filteredBooks = widget.books.where((book) {
+        final matchSearch = book.title.toLowerCase().contains(searchQuery.toLowerCase()) || 
+                           book.author.toLowerCase().contains(searchQuery.toLowerCase());
+        final matchStatus = selectedStatus == "All" || book.status == selectedStatus;
+        return matchSearch && matchStatus;
+      }).toList();
     });
   }
 
@@ -67,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context, value, child) {
               return Transform.translate(
                 offset: Offset(0, value),
-                child: child,
+                child: child!,
               );
             },
             child: Container(
@@ -113,7 +134,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     overlay.insert(overlayEntry);
 
-    // Auto dismiss after 4 seconds
     Future.delayed(const Duration(seconds: 4), () {
       if (overlayEntry.mounted) {
         overlayEntry.remove();
@@ -274,53 +294,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> saveBooks() async {
     final prefs = await SharedPreferences.getInstance();
-    final bookList = widget.books
-        .map(
-          (book) => {
-            "title": book.title,
-            "author": book.author,
-            "rating": book.rating,
-            "progress": book.progress,
-            "status": book.status,
-            "image": book.image,
-            "category": book.category,
-            "year": book.year,
-            "pages": book.pages,
-            "language": book.language,
-            "description": book.description,
-            "isFavorite": book.isFavorite,
-          },
-        )
-        .toList();
+    final bookList = widget.books.map((book) => {
+      "title": book.title,
+      "author": book.author,
+      "rating": book.rating,
+      "progress": book.progress,
+      "status": book.status,
+      "image": book.image,
+      "category": book.category,
+      "year": book.year,
+      "pages": book.pages,
+      "language": book.language,
+      "description": book.description,
+      "isFavorite": book.isFavorite,
+      "dateAdded": book.dateAdded?.toIso8601String(),
+      "dateCompleted": book.dateCompleted?.toIso8601String(),
+    }).toList();
     prefs.setString("books", jsonEncode(bookList));
-  }
-
-  Future<void> loadBooks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString("books");
-
-    if (data != null) {
-      final List decoded = jsonDecode(data);
-      setState(() {
-        widget.books.clear();
-        widget.books.addAll(decoded.map(
-          (item) => Book(
-            title: item["title"],
-            author: item["author"],
-            rating: item["rating"].toDouble(),
-            progress: item["progress"],
-            status: item["status"],
-            image: item["image"],
-            category: item["category"] ?? "Lainnya",
-            year: item["year"] ?? 0,
-            pages: item["pages"] ?? 0,
-            language: item["language"] ?? "Indonesia",
-            description: item["description"] ?? "",
-            isFavorite: item["isFavorite"] ?? false,
-          ),
-        ));
-      });
-    }
   }
 
   Widget buildStatItem(IconData icon, String title, int value) {
@@ -334,17 +324,11 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 6),
         Text(
           value.toString(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         Text(
           title,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 11,
-          ),
+          style: const TextStyle(color: Colors.white70, fontSize: 11),
         ),
       ],
     );
@@ -362,13 +346,10 @@ class _HomeScreenState extends State<HomeScreen> {
         labelStyle: TextStyle(
           color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         onSelected: (_) {
-          setState(() {
-            selectedStatus = status;
-          });
+          setState(() => selectedStatus = status);
+          _filterBooks();
         },
       ),
     );
@@ -379,14 +360,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
-        final books = widget.books;
-        final filteredBooks = books.where((book) {
-          final matchsearch = book.title.toLowerCase().contains(searchQuery.toLowerCase()) || book.author.toLowerCase().contains(searchQuery.toLowerCase());
-          final matchstatus = selectedStatus == "All" || book.status == selectedStatus;
-
-          return matchsearch && matchstatus;
-        }).toList();
-
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
           body: Padding(
@@ -394,7 +367,6 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -403,12 +375,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         ValueListenableBuilder<String>(
                           valueListenable: userNameNotifier,
-                          builder: (context, name, _) {
-                            return Text(
-                              "Halo, $name",
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            );
-                          },
+                          builder: (context, name, _) => Text(
+                            "Halo, $name",
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
                         ),
                         Text(
                           "Mau baca apa hari ini?",
@@ -424,80 +394,68 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (!isEnabled) return const SizedBox.shrink();
                             return ValueListenableBuilder<int>(
                               valueListenable: notificationCountNotifier,
-                              builder: (context, count, _) {
-                                return Stack(
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.notifications_outlined, size: 28),
-                                      onPressed: _showNotificationCenter,
-                                    ),
-                                    if (count > 0)
-                                      Positioned(
-                                        right: 8,
-                                        top: 8,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                          constraints: const BoxConstraints(
-                                            minWidth: 16,
-                                            minHeight: 16,
-                                          ),
-                                          child: Text(
-                                            count > 9 ? '9+' : '$count',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
+                              builder: (context, count, _) => Stack(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.notifications_outlined, size: 28),
+                                    onPressed: _showNotificationCenter,
+                                  ),
+                                  if (count > 0)
+                                    Positioned(
+                                      right: 8,
+                                      top: 8,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                        child: Text(
+                                          count > 9 ? '9+' : '$count',
+                                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center,
                                         ),
                                       ),
-                                  ],
-                                );
-                              },
+                                    ),
+                                ],
+                              ),
                             );
                           },
                         ),
                         const SizedBox(width: 8),
                         ValueListenableBuilder<String>(
                           valueListenable: userImageNotifier,
-                          builder: (context, imageUrl, _) {
-                            return CircleAvatar(
-                              radius: 24,
-                              backgroundImage: imageUrl.isNotEmpty
-                                  ? (imageUrl.startsWith('http') ? NetworkImage(imageUrl) : FileImage(File(imageUrl)) as ImageProvider)
-                                  : null,
-                              child: imageUrl.isEmpty ? const Icon(Icons.person) : null,
-                            );
-                          },
+                          builder: (context, imageUrl, _) => CircleAvatar(
+                            radius: 24,
+                            backgroundImage: imageUrl.isNotEmpty
+                                ? (imageUrl.startsWith('http') ? NetworkImage(imageUrl) : FileImage(File(imageUrl)) as ImageProvider)
+                                : null,
+                            child: imageUrl.isEmpty ? const Icon(Icons.person) : null,
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Search Bar
-                TextField(
-                  onChanged: (val) => setState(() => searchQuery = val),
-                  decoration: InputDecoration(
-                    hintText: Localization.text('cari'),
-                    prefixIcon: const Icon(Icons.search),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: TextField(
+                    onChanged: (val) {
+                      setState(() => searchQuery = val);
+                      _filterBooks();
+                    },
+                    decoration: InputDecoration(
+                      icon: const Icon(Icons.search, color: Colors.grey),
+                      hintText: Localization.text('cari'),
+                      border: InputBorder.none,
+                      hintStyle: const TextStyle(color: Colors.grey),
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // Filter Chips
+                const SizedBox(height: 20),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -509,98 +467,90 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-
-                // List Buku
+                const SizedBox(height: 20),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: filteredBooks.length,
-                    itemBuilder: (context, index) {
-                      final book = filteredBooks[index];
-                      final realIndex = books.indexOf(book);
-
-                      return Stack(
-                        children: [
-                          GestureDetector(
-                            onTap: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => DetailBookScreen(
-                                    book: book,
-                                    index: realIndex,
-                                    categories: widget.categories,
+                  child: _filteredBooks.isEmpty
+                      ? const Center(child: Text("Tidak ada buku ditemukan"))
+                      : ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: _filteredBooks.length,
+                          itemBuilder: (context, index) {
+                            final book = _filteredBooks[index];
+                            final realIndex = widget.books.indexOf(book);
+                            return Stack(
+                              children: [
+                                GestureDetector(
+                                  onTap: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => DetailBookScreen(
+                                          book: book,
+                                          index: realIndex,
+                                          categories: widget.categories,
+                                        ),
+                                      ),
+                                    );
+                                    if (result != null) {
+                                      if (result["delete"] == true) {
+                                        setState(() => widget.books.removeAt(result["index"]));
+                                      } else if (result["updatedBook"] != null) {
+                                        setState(() {
+                                          final updated = result["updatedBook"];
+                                          widget.books[result["index"]] = Book(
+                                            title: updated["title"],
+                                            author: updated["author"],
+                                            rating: updated["rating"].toDouble(),
+                                            progress: updated["progress"],
+                                            status: updated["status"],
+                                            category: updated["category"],
+                                            year: updated["year"] ?? book.year,
+                                            pages: updated["pages"] ?? book.pages,
+                                            language: updated["language"] ?? book.language,
+                                            description: updated["description"] ?? book.description,
+                                            image: updated["image"] ?? book.image,
+                                            isFavorite: updated["isFavorite"] ?? book.isFavorite,
+                                            dateAdded: book.dateAdded,
+                                            dateCompleted: (updated["progress"] == 100 && book.progress < 100)
+                                                ? DateTime.now()
+                                                : (updated["progress"] < 100 ? null : book.dateCompleted),
+                                          );
+                                        });
+                                      }
+                                      saveBooks();
+                                      widget.onBooksUpdated();
+                                      _updateCount();
+                                    }
+                                  },
+                                  child: BookCard(book: book),
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: IconButton(
+                                    icon: Icon(
+                                      book.isFavorite ? Icons.favorite : Icons.favorite_border,
+                                      color: book.isFavorite ? Colors.red : Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      setState(() => book.isFavorite = !book.isFavorite);
+                                      saveBooks();
+                                      widget.onBooksUpdated();
+                                      _updateCount();
+                                    },
                                   ),
                                 ),
-                              );
-
-                              if (result != null) {
-                                if (result["delete"] == true) {
-                                  setState(() {
-                                    books.removeAt(result["index"]);
-                                  });
-                                  saveBooks();
-                                  widget.onBooksUpdated();
-                                  _updateCount();
-                                } else if (result["updatedBook"] != null) {
-                                  setState(() {
-                                    final updated = result["updatedBook"];
-                                    books[result["index"]] = Book(
-                                      title: updated["title"],
-                                      author: updated["author"],
-                                      rating: updated["rating"].toDouble(),
-                                      progress: updated["progress"],
-                                      status: updated["status"],
-                                      category: updated["category"],
-                                      year: updated["year"] ?? book.year,
-                                      pages: updated["pages"] ?? book.pages,
-                                      language: updated["language"] ?? book.language,
-                                      description: updated["description"] ?? book.description,
-                                      image: updated["image"] ?? book.image,
-                                      isFavorite: updated["isFavorite"] ?? book.isFavorite,
-                                    );
-                                  });
-                                  saveBooks();
-                                  widget.onBooksUpdated();
-                                  _updateCount();
-                                }
-                              }
-                            },
-                            child: BookCard(book: book),
-                          ),
-                          Positioned(
-                            top: 8,
-                            right: 8,
-                            child: IconButton(
-                              icon: Icon(
-                                book.isFavorite ? Icons.favorite : Icons.favorite_border,
-                                color: book.isFavorite ? Colors.red : Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  book.isFavorite = !book.isFavorite;
-                                });
-                                saveBooks();
-                                widget.onBooksUpdated();
-                                _updateCount();
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                              ],
+                            );
+                          },
+                        ),
                 ),
-
-                // Statistic Card
                 Container(
                   margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF6A5AE0), Color(0xFF8E7CFF)],
-                    ),
+                    gradient: const LinearGradient(colors: [Color(0xFF6A5AE0), Color(0xFF8E7CFF)]),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,20 +560,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             Localization.text('statistik_membaca'),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           GestureDetector(
-                            onTap: () {
-                              widget.onTabChange(2);
-                            },
-                            child: const Text(
-                              "Lihat Detail",
-                              style: TextStyle(color: Colors.white70),
-                            ),
+                            onTap: () => widget.onTabChange(2),
+                            child: const Text("Lihat Detail", style: TextStyle(color: Colors.white70)),
                           ),
                         ],
                       ),
@@ -631,9 +572,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          buildStatItem(Icons.book, Localization.text('total_buku'), books.length),
-                          buildStatItem(Icons.hourglass_empty, Localization.text('membaca'), books.where((b) => b.status == "Reading").length),
-                          buildStatItem(Icons.check_circle, Localization.text('selesai'), books.where((b) => b.status == "Done").length),
+                          buildStatItem(Icons.book, Localization.text('total_buku'), widget.books.length),
+                          buildStatItem(Icons.hourglass_empty, Localization.text('membaca'), widget.books.where((b) => b.status == "Reading").length),
+                          buildStatItem(Icons.check_circle, Localization.text('selesai'), widget.books.where((b) => b.status == "Done").length),
                         ],
                       ),
                     ],
@@ -651,21 +592,21 @@ class _HomeScreenState extends State<HomeScreen> {
               if (result != null) {
                 setState(() {
                   final progress = result["progress"] ?? 0;
-                  books.add(
-                    Book(
-                      title: result["title"],
-                      author: result["author"],
-                      rating: result["rating"]?.toDouble() ?? 0.0,
-                      progress: progress,
-                      status: getStatus(progress),
-                      image: result["image"] ?? "",
-                      category: result["category"] ?? "Lainnya",
-                      year: result["year"] ?? 0,
-                      pages: result["pages"] ?? 0,
-                      language: result["language"] ?? "Indonesia",
-                      description: result["description"] ?? "",
-                    ),
-                  );
+                  widget.books.add(Book(
+                    title: result["title"],
+                    author: result["author"],
+                    rating: result["rating"]?.toDouble() ?? 0.0,
+                    progress: progress,
+                    status: getStatus(progress),
+                    image: result["image"] ?? "",
+                    category: result["category"] ?? "Lainnya",
+                    year: result["year"] ?? 0,
+                    pages: result["pages"] ?? 0,
+                    language: result["language"] ?? "Indonesia",
+                    description: result["description"] ?? "",
+                    dateAdded: DateTime.now(),
+                    dateCompleted: progress == 100 ? DateTime.now() : null,
+                  ));
                 });
                 saveBooks();
                 widget.onBooksUpdated();
