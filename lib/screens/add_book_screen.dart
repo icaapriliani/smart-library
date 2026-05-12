@@ -127,7 +127,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
           image: FileImage(selectedImage!),
           fit: BoxFit.cover,
         )
-      : (widget.book?["image"] != null
+      : (widget.book?["image"] != null && widget.book!["image"].toString().isNotEmpty
           ? DecorationImage(
               image: widget.book!["image"].toString().startsWith("http")
                   ? NetworkImage(widget.book!["image"])
@@ -136,7 +136,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
             )
           : null),
 ),
-                child: selectedImage == null
+                child: (selectedImage == null && (widget.book?["image"] == null || widget.book!["image"].toString().isEmpty))
                     ? Icon(Icons.add_a_photo, size: 30, color: Theme.of(context).colorScheme.onSurfaceVariant)
                     : null,
               ),

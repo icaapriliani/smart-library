@@ -66,6 +66,9 @@ class Localization {
       'hapus_kategori_bawaan_msg': 'Kategori bawaan aplikasi tidak dapat dihapus',
       'peringatan_hapus_kategori': 'Kategori ini masih digunakan oleh beberapa buku. Jika kategori dihapus, semua buku dalam kategori ini juga akan ikut terhapus.',
       'hapus_semua': 'Hapus Semua',
+      'progress_membaca': 'Progress Membaca',
+      'detail': 'Detail Informasi',
+      'edit': 'Edit',
     },
     'English': {
       'home': 'Home',
@@ -121,6 +124,9 @@ class Localization {
       'hapus_kategori_bawaan_msg': 'App default category cannot be deleted',
       'peringatan_hapus_kategori': 'This category is still used by several books. If the category is deleted, all books in this category will also be deleted.',
       'hapus_semua': 'Delete All',
+      'progress_membaca': 'Reading Progress',
+      'detail': 'Detailed Information',
+      'edit': 'Edit',
     },
   };
 

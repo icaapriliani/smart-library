@@ -269,15 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     int totalBooks = widget.books.length;
     int completedBooks = widget.books.where((b) => b.status == "Done").length;
     
-    // Menghitung kategori favorit
-    String favoriteCategory = "Belum ada";
-    if (widget.books.isNotEmpty) {
-      Map<String, int> counts = {};
-      for (var book in widget.books) {
-        counts[book.category] = (counts[book.category] ?? 0) + 1;
-      }
-      favoriteCategory = counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-    }
+    // Progress target (contoh statis: 5 dari 10 buku)
 
     // Progress target (contoh statis: 5 dari 10 buku)
     double targetProgress = completedBooks / 10.0;
@@ -484,8 +476,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
-                  _buildFavoriteCard(favoriteCategory),
 
                   const SizedBox(height: 25),
                   // List Buku Favorit
@@ -704,57 +694,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildFavoriteCard(String category) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.favorite, color: Colors.orange, size: 28),
-          ),
-          const SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                Localization.text('favorit'),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 14,
-                ),
-              ),
-              Text(
-                category,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

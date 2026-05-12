@@ -16,7 +16,8 @@ class MainScreen extends StatefulWidget{
  State<MainScreen> createState() => _MainScreenState();
 }
 class _MainScreenState extends State<MainScreen> {
-   int selectedIndex = 0;
+  int selectedIndex = 0;
+  bool isLoading = true;
 
   List<String> categories = [];
   final List<Book> books = [];
@@ -55,6 +56,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> loadBooks() async {
+    setState(() => isLoading = true);
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getString("books");
     if (data != null) {
@@ -79,6 +81,7 @@ class _MainScreenState extends State<MainScreen> {
             )));
       });
     }
+    setState(() => isLoading = false);
   }
 
   Future<void> saveBooks() async {
@@ -149,6 +152,7 @@ class _MainScreenState extends State<MainScreen> {
     HomeScreen(
       books: books, 
       categories: categories,
+      isLoading: isLoading,
       onTabChange: onItemTapped,
       onBooksUpdated: onBooksUpdated,
     ),

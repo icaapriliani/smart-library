@@ -14,6 +14,7 @@ class HomeScreen extends StatefulWidget {
   final Function(int) onTabChange;
   final List<String> categories;
   final List<Book> books;
+  final bool isLoading;
   final VoidCallback onBooksUpdated;
 
   const HomeScreen({
@@ -21,6 +22,7 @@ class HomeScreen extends StatefulWidget {
     super.key,
     required this.books,
     required this.categories,
+    required this.isLoading,
     required this.onBooksUpdated,
   });
 
@@ -370,21 +372,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ValueListenableBuilder<String>(
-                          valueListenable: userNameNotifier,
-                          builder: (context, name, _) => Text(
-                            "Halo, $name",
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ValueListenableBuilder<String>(
+                            valueListenable: userNameNotifier,
+                            builder: (context, name, _) => Text(
+                              "Halo, $name",
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "Mau baca apa hari ini?",
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                      ],
+                          Text(
+                            "Mau baca apa hari ini?",
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                     Row(
                       children: [
@@ -424,11 +432,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         ValueListenableBuilder<String>(
                           valueListenable: userImageNotifier,
                           builder: (context, imageUrl, _) => CircleAvatar(
-                            radius: 24,
-                            backgroundImage: imageUrl.isNotEmpty
-                                ? (imageUrl.startsWith('http') ? NetworkImage(imageUrl) : FileImage(File(imageUrl)) as ImageProvider)
+                            radius: 20,
+                            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            backgroundImage: imageUrl.isEmpty
+                                ? null
+                                : (imageUrl.startsWith('http') 
+                                    ? NetworkImage(imageUrl) 
+                                    : FileImage(File(imageUrl)) as ImageProvider),
+                            child: imageUrl.isEmpty
+                                ? Icon(Icons.person, color: Theme.of(context).colorScheme.primary, size: 20)
                                 : null,
-                            child: imageUrl.isEmpty ? const Icon(Icons.person) : null,
                           ),
                         ),
                       ],
@@ -469,81 +482,100 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 20),
                 Expanded(
-                  child: _filteredBooks.isEmpty
-                      ? const Center(child: Text("Tidak ada buku ditemukan"))
-                      : ListView.builder(
-                          padding: EdgeInsets.zero,
-                          itemCount: _filteredBooks.length,
-                          itemBuilder: (context, index) {
-                            final book = _filteredBooks[index];
-                            final realIndex = widget.books.indexOf(book);
-                            return Stack(
-                              children: [
-                                GestureDetector(
-                                  onTap: () async {
-                                    final result = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => DetailBookScreen(
-                                          book: book,
-                                          index: realIndex,
-                                          categories: widget.categories,
-                                        ),
-                                      ),
-                                    );
-                                    if (result != null) {
-                                      if (result["delete"] == true) {
-                                        setState(() => widget.books.removeAt(result["index"]));
-                                      } else if (result["updatedBook"] != null) {
-                                        setState(() {
-                                          final updated = result["updatedBook"];
-                                          widget.books[result["index"]] = Book(
-                                            title: updated["title"],
-                                            author: updated["author"],
-                                            rating: updated["rating"].toDouble(),
-                                            progress: updated["progress"],
-                                            status: updated["status"],
-                                            category: updated["category"],
-                                            year: updated["year"] ?? book.year,
-                                            pages: updated["pages"] ?? book.pages,
-                                            language: updated["language"] ?? book.language,
-                                            description: updated["description"] ?? book.description,
-                                            image: updated["image"] ?? book.image,
-                                            isFavorite: updated["isFavorite"] ?? book.isFavorite,
-                                            dateAdded: book.dateAdded,
-                                            dateCompleted: (updated["progress"] == 100 && book.progress < 100)
-                                                ? DateTime.now()
-                                                : (updated["progress"] < 100 ? null : book.dateCompleted),
-                                          );
-                                        });
-                                      }
-                                      saveBooks();
-                                      widget.onBooksUpdated();
-                                      _updateCount();
-                                    }
-                                  },
-                                  child: BookCard(book: book),
-                                ),
-                                Positioned(
-                                  top: 8,
-                                  right: 8,
-                                  child: IconButton(
-                                    icon: Icon(
-                                      book.isFavorite ? Icons.favorite : Icons.favorite_border,
-                                      color: book.isFavorite ? Colors.red : Colors.grey,
+                  child: widget.isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        )
+                      : _filteredBooks.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.book_outlined, size: 60, color: Colors.grey.withOpacity(0.5)),
+                                  const SizedBox(height: 16),
+                                  const Text("Tidak ada buku ditemukan", style: TextStyle(color: Colors.grey)),
+                                ],
+                              ),
+                            )
+                          : ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: _filteredBooks.length,
+                              itemBuilder: (context, index) {
+                                final book = _filteredBooks[index];
+                                final realIndex = widget.books.indexOf(book);
+                                return Stack(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => DetailBookScreen(
+                                              book: book,
+                                              index: realIndex,
+                                              categories: widget.categories,
+                                            ),
+                                          ),
+                                        );
+                                        if (result != null) {
+                                          if (result["delete"] == true) {
+                                            setState(() {
+                                              widget.books.removeAt(result["index"]);
+                                            });
+                                          } else if (result["updatedBook"] != null) {
+                                            setState(() {
+                                              final updated = result["updatedBook"];
+                                              final oldBook = widget.books[result["index"]];
+                                              widget.books[result["index"]] = Book(
+                                                title: updated["title"],
+                                                author: updated["author"],
+                                                rating: updated["rating"].toDouble(),
+                                                progress: updated["progress"],
+                                                status: updated["status"],
+                                                category: updated["category"],
+                                                year: updated["year"],
+                                                pages: updated["pages"],
+                                                language: updated["language"],
+                                                description: updated["description"],
+                                                image: updated["image"] ?? "",
+                                                isFavorite: updated["isFavorite"] ?? oldBook.isFavorite,
+                                                dateAdded: oldBook.dateAdded,
+                                                dateCompleted: (updated["progress"] == 100 && oldBook.progress < 100)
+                                                    ? DateTime.now()
+                                                    : (updated["progress"] < 100 ? null : oldBook.dateCompleted),
+                                              );
+                                            });
+                                          }
+                                          await saveBooks();
+                                          widget.onBooksUpdated();
+                                          _updateCount();
+                                          _filterBooks();
+                                        }
+                                      },
+                                      child: BookCard(book: book),
                                     ),
-                                    onPressed: () {
-                                      setState(() => book.isFavorite = !book.isFavorite);
-                                      saveBooks();
-                                      widget.onBooksUpdated();
-                                      _updateCount();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                                    Positioned(
+                                      top: 8,
+                                      right: 8,
+                                      child: IconButton(
+                                        icon: Icon(
+                                          book.isFavorite ? Icons.favorite : Icons.favorite_border,
+                                          color: book.isFavorite ? Colors.red : Colors.grey,
+                                        ),
+                                        onPressed: () {
+                                          setState(() => book.isFavorite = !book.isFavorite);
+                                          saveBooks();
+                                          widget.onBooksUpdated();
+                                          _updateCount();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 16),
@@ -572,9 +604,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          buildStatItem(Icons.book, Localization.text('total_buku'), widget.books.length),
-                          buildStatItem(Icons.hourglass_empty, Localization.text('membaca'), widget.books.where((b) => b.status == "Reading").length),
-                          buildStatItem(Icons.check_circle, Localization.text('selesai'), widget.books.where((b) => b.status == "Done").length),
+                          Flexible(child: buildStatItem(Icons.book, Localization.text('total_buku'), widget.books.length)),
+                          Flexible(child: buildStatItem(Icons.hourglass_empty, Localization.text('membaca'), widget.books.where((b) => b.status == "Reading").length)),
+                          Flexible(child: buildStatItem(Icons.check_circle, Localization.text('selesai'), widget.books.where((b) => b.status == "Done").length)),
                         ],
                       ),
                     ],
@@ -608,9 +640,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     dateCompleted: progress == 100 ? DateTime.now() : null,
                   ));
                 });
-                saveBooks();
+                await saveBooks();
                 widget.onBooksUpdated();
                 _updateCount();
+                _filterBooks();
               }
             },
             backgroundColor: Theme.of(context).colorScheme.primary,

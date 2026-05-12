@@ -43,19 +43,38 @@ class BookCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: book.image.startsWith("http")
-    ? Image.network(
-        book.image,
-        width: 70,
-        height: 95,
-        fit: BoxFit.cover,
-      )
-    : Image.file(
-        File(book.image),
-        width: 70,
-        height: 95,
-        fit: BoxFit.cover,
-      ),
+            child: book.image.isEmpty
+                ? Container(
+                    width: 70,
+                    height: 95,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    child: Icon(Icons.book, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  )
+                : (book.image.startsWith("http")
+                    ? Image.network(
+                        book.image,
+                        width: 70,
+                        height: 95,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 70,
+                          height: 95,
+                          color: Theme.of(context).colorScheme.surfaceVariant,
+                          child: const Icon(Icons.broken_image),
+                        ),
+                      )
+                    : Image.file(
+                        File(book.image),
+                        width: 70,
+                        height: 95,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 70,
+                          height: 95,
+                          color: Theme.of(context).colorScheme.surfaceVariant,
+                          child: const Icon(Icons.broken_image),
+                        ),
+                      )),
           ),
           const SizedBox(width: 14),
           //info
@@ -67,30 +86,35 @@ class BookCard extends StatelessWidget {
                  Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(child: 
-                      Text(
+                    Expanded(
+                      child: Text(
                         book.title,
                         style: TextStyle(
                           fontWeight: FontWeight.bold, 
                           fontSize: 16,
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Icon(Icons.more_vert, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
-              ],
-            ),
-            const SizedBox(height: 4),
+                  ],
+                ),
+                const SizedBox(height: 4),
                 Text(
                   book.author, 
                   style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 //kategori
                 Text(
                   book.category,
                   style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 //rating
@@ -120,23 +144,29 @@ class BookCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: getStatusColor().withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        book.status,
-                        style: TextStyle(color: getStatusColor(), fontSize: 11, fontWeight: FontWeight.w500),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: getStatusColor().withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          book.status,
+                          style: TextStyle(color: getStatusColor(), fontSize: 11, fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-
+                    const SizedBox(width: 8),
                     Icon(
-                      Icons.bookmark_border, color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      Icons.bookmark_border, 
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 20,
                     )
-
-                ],),
+                  ],
+                ),
                 const SizedBox(height: 10),
 
                 //progress
