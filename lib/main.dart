@@ -62,6 +62,10 @@ class Localization {
       'unfinished_msg': 'buku belum selesai',
       'target_msg': 'Target membaca belum tercapai',
       'fav_msg': 'Buku favoritmu belum dibaca hari ini',
+      'konfirmasi_hapus_kategori': 'Yakin ingin menghapus kategori ini?',
+      'hapus_kategori_bawaan_msg': 'Kategori bawaan aplikasi tidak dapat dihapus',
+      'peringatan_hapus_kategori': 'Kategori ini masih digunakan oleh beberapa buku. Jika kategori dihapus, semua buku dalam kategori ini juga akan ikut terhapus.',
+      'hapus_semua': 'Hapus Semua',
     },
     'English': {
       'home': 'Home',
@@ -113,6 +117,10 @@ class Localization {
       'unfinished_msg': 'unfinished books',
       'target_msg': 'Reading target not reached',
       'fav_msg': 'Your favorite book hasn\'t been read today',
+      'konfirmasi_hapus_kategori': 'Are you sure you want to delete this category?',
+      'hapus_kategori_bawaan_msg': 'App default category cannot be deleted',
+      'peringatan_hapus_kategori': 'This category is still used by several books. If the category is deleted, all books in this category will also be deleted.',
+      'hapus_semua': 'Delete All',
     },
   };
 

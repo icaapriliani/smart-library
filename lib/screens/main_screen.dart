@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'home_screen.dart';
 import 'category_screen.dart';
 import 'statistics_screen.dart';
@@ -80,6 +79,29 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Future<void> saveBooks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final bookList = books
+        .map(
+          (book) => {
+            "title": book.title,
+            "author": book.author,
+            "rating": book.rating,
+            "progress": book.progress,
+            "status": book.status,
+            "image": book.image,
+            "category": book.category,
+            "year": book.year,
+            "pages": book.pages,
+            "language": book.language,
+            "description": book.description,
+            "isFavorite": book.isFavorite,
+          },
+        )
+        .toList();
+    await prefs.setString("books", jsonEncode(bookList));
+  }
+
   Future<void> loadCategories() async {
     final prefs = await SharedPreferences.getInstance();
     final List<String> savedCategories = prefs.getStringList("categories") ?? [];
@@ -126,7 +148,7 @@ class _MainScreenState extends State<MainScreen> {
       onTabChange: onItemTapped,
       onBooksUpdated: onBooksUpdated,
     ),
-CategoryScreen(
+    CategoryScreen(
         categories: categories,
         books: books,
         onAddCategory: (newCategory) {
@@ -136,6 +158,18 @@ CategoryScreen(
             });
             saveCategories();
           }
+        },
+        onDeleteCategory: (categoryToDelete) {
+          setState(() {
+            // Hapus dari daftar kategori
+            categories.remove(categoryToDelete);
+            
+            // Hapus semua buku yang memakai kategori ini
+            books.removeWhere((book) => book.category == categoryToDelete);
+          });
+          saveCategories();
+          saveBooks();
+          NotificationService().updateNotificationCount(books);
         },
       ),
     StatisticsScreen(books: books),
