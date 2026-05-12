@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 import '../services/notification_service.dart';
+import '../models/notification_item.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int) onTabChange;
@@ -30,7 +31,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String searchQuery = "";
   String selectedStatus = "All";
-  bool _hasShownSnackbar = false;
+  static bool _hasShownSnackbar = false;
 
   @override
   void initState() {
@@ -43,20 +44,226 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _checkAndShowNotification() {
     if (notificationsNotifier.value && !_hasShownSnackbar) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(Localization.text('notif_welcome')),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          backgroundColor: const Color(0xFF6A5AE0),
-        ),
-      );
+      _showTopNotification();
       _hasShownSnackbar = true;
     }
   }
 
+  void _showTopNotification() {
+    final overlay = Overlay.of(context);
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).padding.top + 10,
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: -100.0, end: 0.0),
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutBack,
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset(0, value),
+                child: child,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Color(0xFF6A5AE0)),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Text(
+                      Localization.text('notif_welcome'),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 18, color: Colors.grey),
+                    onPressed: () => overlayEntry.remove(),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    // Auto dismiss after 4 seconds
+    Future.delayed(const Duration(seconds: 4), () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+  }
+
   void _updateCount() {
     NotificationService().updateNotificationCount(widget.books);
+  }
+
+  void _showNotificationCenter() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 10, 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    Localization.text('notif_center'),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      NotificationService().markAllAsRead();
+                    },
+                    icon: const Icon(Icons.done_all, size: 18),
+                    label: Text(Localization.text('mark_read')),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            Expanded(
+              child: ValueListenableBuilder<List<NotificationItem>>(
+                valueListenable: NotificationService().notificationsListNotifier,
+                builder: (context, notifications, _) {
+                  if (notifications.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.notifications_none, size: 80, color: Colors.grey.withOpacity(0.5)),
+                          const SizedBox(height: 16),
+                          Text(
+                            Localization.text('no_notif'),
+                            style: const TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    itemCount: notifications.length,
+                    itemBuilder: (context, index) {
+                      final notif = notifications[index];
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(15),
+                          border: notif.isRead ? null : Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                              child: Icon(Icons.notifications, color: Theme.of(context).colorScheme.primary, size: 20),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          notif.title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        notif.time,
+                                        style: const TextStyle(color: Colors.grey, fontSize: 10),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    notif.message,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   String getStatus(int progress) {
@@ -222,9 +429,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.notifications_outlined, size: 28),
-                                      onPressed: () {
-                                        // Optional: show notification list or similar
-                                      },
+                                      onPressed: _showNotificationCenter,
                                     ),
                                     if (count > 0)
                                       Positioned(
