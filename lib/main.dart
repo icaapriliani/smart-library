@@ -6,6 +6,9 @@ final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 final ValueNotifier<String> userNameNotifier = ValueNotifier("Ica");
 final ValueNotifier<String> userImageNotifier = ValueNotifier("https://picsum.photos/200/300");
 final ValueNotifier<String> languageNotifier = ValueNotifier("Indonesia");
+final ValueNotifier<bool> notificationsNotifier = ValueNotifier(true);
+final ValueNotifier<int> notificationCountNotifier = ValueNotifier(0);
+
 
 class Localization {
   static final Map<String, Map<String, String>> _values = {
@@ -46,6 +49,9 @@ class Localization {
       'jumlah_halaman': 'Jumlah Halaman',
       'by': 'oleh',
       'buku_favorit': 'Buku Favorit',
+      'notif_welcome': 'Jangan lupa lanjut membaca hari ini 📚',
+      'notif_title': 'Reminder Membaca',
+      'notif_body': 'Waktunya lanjut membaca buku favoritmu!',
     },
     'English': {
       'home': 'Home',
@@ -84,6 +90,9 @@ class Localization {
       'jumlah_halaman': 'Total Pages',
       'by': 'by',
       'buku_favorit': 'Favorite Books',
+      'notif_welcome': 'Don\'t forget to continue reading today 📚',
+      'notif_title': 'Reading Reminder',
+      'notif_body': 'Time to continue reading your favorite book!',
     },
   };
 
@@ -102,6 +111,7 @@ void main() async {
   userNameNotifier.value = prefs.getString('userName') ?? "Ica";
   userImageNotifier.value = prefs.getString('userImage') ?? "https://picsum.photos/200/300";
   languageNotifier.value = prefs.getString('selectedLanguage') ?? "Indonesia";
+  notificationsNotifier.value = prefs.getBool('notificationsEnabled') ?? true;
   
   runApp(const MyApp());
 }

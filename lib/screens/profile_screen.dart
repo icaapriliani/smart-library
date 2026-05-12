@@ -15,7 +15,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isNotificationsEnabled = true;
   String _selectedLanguage = "Indonesia";
 
   @override
@@ -27,7 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _isNotificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
       _selectedLanguage = prefs.getString('selectedLanguage') ?? "Indonesia";
     });
   }
@@ -35,9 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _toggleNotifications(bool val) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notificationsEnabled', val);
-    setState(() {
-      _isNotificationsEnabled = val;
-    });
+    notificationsNotifier.value = val;
   }
 
   Future<void> _showLanguageDialog() async {
@@ -581,10 +577,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _buildSettingItem(
                           Icons.notifications_none,
                           Localization.text('notifikasi'),
-                          trailing: Switch(
-                            value: _isNotificationsEnabled,
-                            activeColor: Theme.of(context).colorScheme.primary,
-                            onChanged: _toggleNotifications,
+                          trailing: ValueListenableBuilder<bool>(
+                            valueListenable: notificationsNotifier,
+                            builder: (context, isEnabled, _) {
+                              return Switch(
+                                value: isEnabled,
+                                activeColor: Theme.of(context).colorScheme.primary,
+                                onChanged: _toggleNotifications,
+                              );
+                            },
                           ),
                         ),
                         _buildDivider(),

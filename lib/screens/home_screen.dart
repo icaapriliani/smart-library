@@ -7,6 +7,7 @@ import 'detail_book_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
+import '../services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int) onTabChange;
@@ -29,10 +30,33 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String searchQuery = "";
   String selectedStatus = "All";
+  bool _hasShownSnackbar = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowNotification();
+      _updateCount();
+    });
+  }
+
+  void _checkAndShowNotification() {
+    if (notificationsNotifier.value && !_hasShownSnackbar) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(Localization.text('notif_welcome')),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          backgroundColor: const Color(0xFF6A5AE0),
+        ),
+      );
+      _hasShownSnackbar = true;
+    }
+  }
+
+  void _updateCount() {
+    NotificationService().updateNotificationCount(widget.books);
   }
 
   String getStatus(int progress) {
@@ -185,17 +209,68 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    ValueListenableBuilder<String>(
-                      valueListenable: userImageNotifier,
-                      builder: (context, imageUrl, _) {
-                        return CircleAvatar(
-                          radius: 24,
-                          backgroundImage: imageUrl.isNotEmpty
-                              ? (imageUrl.startsWith('http') ? NetworkImage(imageUrl) : FileImage(File(imageUrl)) as ImageProvider)
-                              : null,
-                          child: imageUrl.isEmpty ? const Icon(Icons.person) : null,
-                        );
-                      },
+                    Row(
+                      children: [
+                        ValueListenableBuilder<bool>(
+                          valueListenable: notificationsNotifier,
+                          builder: (context, isEnabled, _) {
+                            if (!isEnabled) return const SizedBox.shrink();
+                            return ValueListenableBuilder<int>(
+                              valueListenable: notificationCountNotifier,
+                              builder: (context, count, _) {
+                                return Stack(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.notifications_outlined, size: 28),
+                                      onPressed: () {
+                                        // Optional: show notification list or similar
+                                      },
+                                    ),
+                                    if (count > 0)
+                                      Positioned(
+                                        right: 8,
+                                        top: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          constraints: const BoxConstraints(
+                                            minWidth: 16,
+                                            minHeight: 16,
+                                          ),
+                                          child: Text(
+                                            count > 9 ? '9+' : '$count',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ValueListenableBuilder<String>(
+                          valueListenable: userImageNotifier,
+                          builder: (context, imageUrl, _) {
+                            return CircleAvatar(
+                              radius: 24,
+                              backgroundImage: imageUrl.isNotEmpty
+                                  ? (imageUrl.startsWith('http') ? NetworkImage(imageUrl) : FileImage(File(imageUrl)) as ImageProvider)
+                                  : null,
+                              child: imageUrl.isEmpty ? const Icon(Icons.person) : null,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -261,6 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   });
                                   saveBooks();
                                   widget.onBooksUpdated();
+                                  _updateCount();
                                 } else if (result["updatedBook"] != null) {
                                   setState(() {
                                     final updated = result["updatedBook"];
@@ -281,6 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   });
                                   saveBooks();
                                   widget.onBooksUpdated();
+                                  _updateCount();
                                 }
                               }
                             },
@@ -300,6 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 });
                                 saveBooks();
                                 widget.onBooksUpdated();
+                                _updateCount();
                               },
                             ),
                           ),
@@ -386,6 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
                 saveBooks();
                 widget.onBooksUpdated();
+                _updateCount();
               }
             },
             backgroundColor: Theme.of(context).colorScheme.primary,

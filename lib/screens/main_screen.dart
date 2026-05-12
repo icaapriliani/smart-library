@@ -8,6 +8,7 @@ import '../models/book.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../main.dart';
+import '../services/notification_service.dart';
 
 class MainScreen extends StatefulWidget{
   const MainScreen({super.key});
@@ -30,12 +31,28 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    NotificationService().init();
     initializeApp();
+    notificationsNotifier.addListener(_onNotificationToggle);
+  }
+
+  @override
+  void dispose() {
+    notificationsNotifier.removeListener(_onNotificationToggle);
+    super.dispose();
+  }
+
+  void _onNotificationToggle() {
+    NotificationService().updateNotificationCount(books);
+    if (notificationsNotifier.value) {
+      NotificationService().scheduleDailyReminder();
+    }
   }
 
   Future<void> initializeApp() async {
     await loadBooks();
     await loadCategories();
+    NotificationService().updateNotificationCount(books);
   }
 
   Future<void> loadBooks() async {
