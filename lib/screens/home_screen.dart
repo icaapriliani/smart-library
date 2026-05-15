@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didUpdateWidget(HomeScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.books != widget.books) {
+    if (oldWidget.books != widget.books || oldWidget.isLoading != widget.isLoading) {
       _filterBooks();
     }
   }
@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 40,
               height: 5,
               decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -211,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.notifications_none, size: 80, color: Colors.grey.withOpacity(0.5)),
+                          Icon(Icons.notifications_none, size: 80, color: Colors.grey.withValues(alpha: 0.5)),
                           const SizedBox(height: 16),
                           Text(
                             Localization.text('no_notif'),
@@ -230,15 +230,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(15),
-                          border: notif.isRead ? null : Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                          border: notif.isRead ? null : Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CircleAvatar(
-                              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                               child: Icon(Icons.notifications, color: Theme.of(context).colorScheme.primary, size: 20),
                             ),
                             const SizedBox(width: 16),
@@ -344,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
         label: Text(label),
         selected: isSelected,
         selectedColor: Theme.of(context).colorScheme.primary,
-        backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
         labelStyle: TextStyle(
           color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
@@ -433,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           valueListenable: userImageNotifier,
                           builder: (context, imageUrl, _) => CircleAvatar(
                             radius: 20,
-                            backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                             backgroundImage: imageUrl.isEmpty
                                 ? null
                                 : (imageUrl.startsWith('http') 
@@ -452,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.4),
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: TextField(
@@ -484,19 +484,78 @@ class _HomeScreenState extends State<HomeScreen> {
                 Expanded(
                   child: widget.isLoading
                       ? Center(
-                          child: CircularProgressIndicator(
-                            color: Theme.of(context).colorScheme.primary,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircularProgressIndicator(
+                                color: Theme.of(context).colorScheme.primary,
+                                strokeWidth: 3,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                "Memuat data...",
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       : _filteredBooks.isEmpty
                           ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.book_outlined, size: 60, color: Colors.grey.withOpacity(0.5)),
-                                  const SizedBox(height: 16),
-                                  const Text("Tidak ada buku ditemukan", style: TextStyle(color: Colors.grey)),
-                                ],
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.auto_stories_outlined,
+                                        size: 80,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      "Tambah koleksi buku anda",
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 40),
+                                      child: Text(
+                                        "Mulai simpan buku favorit dan pantau progress membaca anda",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 32),
+                                    ElevatedButton.icon(
+                                      onPressed: _navigateToAddBook,
+                                      icon: const Icon(Icons.add),
+                                      label: const Text("Tambah Buku"),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Theme.of(context).colorScheme.primary,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        elevation: 0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             )
                           : ListView.builder(
@@ -616,41 +675,42 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddBookScreen(categories: widget.categories)),
-              );
-              if (result != null) {
-                setState(() {
-                  final progress = result["progress"] ?? 0;
-                  widget.books.add(Book(
-                    title: result["title"],
-                    author: result["author"],
-                    rating: result["rating"]?.toDouble() ?? 0.0,
-                    progress: progress,
-                    status: getStatus(progress),
-                    image: result["image"] ?? "",
-                    category: result["category"] ?? "Lainnya",
-                    year: result["year"] ?? 0,
-                    pages: result["pages"] ?? 0,
-                    language: result["language"] ?? "Indonesia",
-                    description: result["description"] ?? "",
-                    dateAdded: DateTime.now(),
-                    dateCompleted: progress == 100 ? DateTime.now() : null,
-                  ));
-                });
-                await saveBooks();
-                widget.onBooksUpdated();
-                _updateCount();
-                _filterBooks();
-              }
-            },
+            onPressed: _navigateToAddBook,
             backgroundColor: Theme.of(context).colorScheme.primary,
             child: const Icon(Icons.add, color: Colors.white),
           ),
         );
       },
     );
+  }
+  Future<void> _navigateToAddBook() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddBookScreen(categories: widget.categories)),
+    );
+    if (result != null) {
+      setState(() {
+        final progress = result["progress"] ?? 0;
+        widget.books.add(Book(
+          title: result["title"],
+          author: result["author"],
+          rating: result["rating"]?.toDouble() ?? 0.0,
+          progress: progress,
+          status: getStatus(progress),
+          image: result["image"] ?? "",
+          category: result["category"] ?? "Lainnya",
+          year: result["year"] ?? 0,
+          pages: result["pages"] ?? 0,
+          language: result["language"] ?? "Indonesia",
+          description: result["description"] ?? "",
+          dateAdded: DateTime.now(),
+          dateCompleted: progress == 100 ? DateTime.now() : null,
+        ));
+      });
+      await saveBooks();
+      widget.onBooksUpdated();
+      _updateCount();
+      _filterBooks();
+    }
   }
 }
