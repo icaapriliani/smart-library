@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'main_screen.dart';
+import 'onboarding_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -32,17 +34,30 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     _controller.forward();
 
-    Timer(const Duration(seconds: 3), () {
+    _navigateToNext();
+  }
+
+  Future<void> _navigateToNext() async {
+    // Pastikan splash muncul minimal selama 3 detik
+    await Future.delayed(const Duration(seconds: 3));
+    
+    if (!mounted) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final bool showOnboarding = prefs.getBool('showOnboarding') ?? true;
+
+    if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const MainScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => 
+              showOnboarding ? const OnboardingScreen() : const MainScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 800),
         ),
       );
-    });
+    }
   }
 
   @override
