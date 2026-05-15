@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/main_screen.dart';
+import 'screens/splash_screen.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 final ValueNotifier<String> userNameNotifier = ValueNotifier("Ica");
@@ -206,7 +206,7 @@ class MyApp extends StatelessWidget {
               contentTextStyle: TextStyle(color: Color(0xFFE2E2E6)),
             ),
           ),
-          home: const MainScreen(),
+          home: const SplashScreen(),
         );
       },
     );
