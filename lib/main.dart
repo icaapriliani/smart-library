@@ -142,7 +142,7 @@ void main() async {
   bool isDark = prefs.getBool('isDark') ?? false;
   themeNotifier.value = isDark ? ThemeMode.dark : ThemeMode.light;
   
-  userNameNotifier.value = prefs.getString('userName') ?? "Ica";
+  userNameNotifier.value = prefs.getString('username') ?? "User";
   userImageNotifier.value = prefs.getString('userImage') ?? "https://picsum.photos/200/300";
   languageNotifier.value = prefs.getString('selectedLanguage') ?? "Indonesia";
   notificationsNotifier.value = prefs.getBool('notificationsEnabled') ?? true;

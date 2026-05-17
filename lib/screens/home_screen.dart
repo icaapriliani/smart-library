@@ -65,6 +65,38 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _loadBooksFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? booksString = prefs.getString('books');
+    if (booksString != null) {
+      List<dynamic> jsonList = jsonDecode(booksString);
+      setState(() {
+        widget.books.clear();
+        for (var json in jsonList) {
+          widget.books.add(Book(
+            title: json['title'],
+            author: json['author'],
+            rating: json['rating']?.toDouble() ?? 0.0,
+            progress: json['progress'],
+            status: json['status'],
+            category: json['category'],
+            year: json['year'],
+            pages: json['pages'],
+            language: json['language'],
+            description: json['description'],
+            image: json['image'] ?? "",
+            isFavorite: json['isFavorite'] ?? false,
+            dateAdded: json['dateAdded'] != null ? DateTime.parse(json['dateAdded']) : DateTime.now(),
+            dateCompleted: json['dateCompleted'] != null ? DateTime.parse(json['dateCompleted']) : null,
+          ));
+        }
+      });
+      _filterBooks();
+      widget.onBooksUpdated();
+      _updateCount();
+    }
+  }
+
   void _checkAndShowNotification() {
     if (notificationsNotifier.value && !_hasShownSnackbar) {
       _showTopNotification();
@@ -578,40 +610,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           ),
                                         );
-                                        if (result != null) {
-                                          if (result["delete"] == true) {
-                                            setState(() {
-                                              widget.books.removeAt(result["index"]);
-                                            });
-                                          } else if (result["updatedBook"] != null) {
-                                            setState(() {
-                                              final updated = result["updatedBook"];
-                                              final oldBook = widget.books[result["index"]];
-                                              widget.books[result["index"]] = Book(
-                                                title: updated["title"],
-                                                author: updated["author"],
-                                                rating: updated["rating"].toDouble(),
-                                                progress: updated["progress"],
-                                                status: updated["status"],
-                                                category: updated["category"],
-                                                year: updated["year"],
-                                                pages: updated["pages"],
-                                                language: updated["language"],
-                                                description: updated["description"],
-                                                image: updated["image"] ?? "",
-                                                isFavorite: updated["isFavorite"] ?? oldBook.isFavorite,
-                                                dateAdded: oldBook.dateAdded,
-                                                dateCompleted: (updated["progress"] == 100 && oldBook.progress < 100)
-                                                    ? DateTime.now()
-                                                    : (updated["progress"] < 100 ? null : oldBook.dateCompleted),
-                                              );
-                                            });
-                                          }
+                                        
+                                        if (result != null && result is Map && result["delete"] == true) {
+                                          setState(() {
+                                            widget.books.removeAt(result["index"]);
+                                          });
                                           await saveBooks();
-                                          widget.onBooksUpdated();
-                                          _updateCount();
-                                          _filterBooks();
                                         }
+                                        
+                                        // Selalu reload list buku setelah kembali dari Edit/Detail
+                                        await _loadBooksFromStorage();
                                       },
                                       child: BookCard(book: book),
                                     ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'add_book_screen.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 
 class DetailBookScreen extends StatefulWidget {
@@ -256,6 +258,7 @@ class _DetailBookScreenState extends State<DetailBookScreen> {
                             MaterialPageRoute(
                               builder: (_) => AddBookScreen(
                                 categories: widget.categories,
+                                index: widget.index,
                                 book: {
                                   "title": currentBook.title,
                                   "author": currentBook.author,
@@ -269,32 +272,36 @@ class _DetailBookScreenState extends State<DetailBookScreen> {
                                   "description": currentBook.description,
                                   "image": currentBook.image,
                                   "isFavorite": isFavorite,
+                                  "dateAdded": currentBook.dateAdded?.toIso8601String(),
+                                  "dateCompleted": currentBook.dateCompleted?.toIso8601String(),
                                 },
                               ),
                             ),
                           );
 
-                          if (result != null) {
-                            setState(() {
-                              currentBook = Book(
-                                title: result["title"],
-                                author: result["author"],
-                                rating: result["rating"].toDouble(),
-                                progress: result["progress"],
-                                status: result["status"],
-                                category: result["category"],
-                                year: result["year"],
-                                pages: result["pages"],
-                                language: result["language"],
-                                description: result["description"],
-                                image: result["image"] ?? "",
-                                isFavorite: isFavorite,
-                                dateAdded: currentBook.dateAdded,
-                                dateCompleted: (result["progress"] == 100 && currentBook.progress < 100)
-                                    ? DateTime.now()
-                                    : (result["progress"] < 100 ? null : currentBook.dateCompleted),
-                              );
-                            });
+                          if (result == true) {
+                            // Cek result == true, refresh data menggunakan setState
+                            final prefs = await SharedPreferences.getInstance();
+                            final booksString = prefs.getString('books');
+                            if (booksString != null) {
+                              List<dynamic> jsonList = jsonDecode(booksString);
+                              final updatedMap = jsonList[widget.index];
+                              setState(() {
+                                currentBook = currentBook.copyWith(
+                                  title: updatedMap["title"],
+                                  author: updatedMap["author"],
+                                  rating: updatedMap["rating"]?.toDouble() ?? 0.0,
+                                  progress: updatedMap["progress"],
+                                  status: updatedMap["status"],
+                                  category: updatedMap["category"],
+                                  year: updatedMap["year"],
+                                  pages: updatedMap["pages"],
+                                  language: updatedMap["language"],
+                                  description: updatedMap["description"],
+                                  image: updatedMap["image"] ?? "",
+                                );
+                              });
+                            }
                           }
                         },
                         icon: const Icon(Icons.edit_outlined, size: 18),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main_screen.dart';
 import '../services/auth_service.dart';
+import '../main.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -61,6 +62,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       final success = await AuthService.register(name, email, password);
 
       if (success && mounted) {
+        userNameNotifier.value = name;
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Register berhasil!"),

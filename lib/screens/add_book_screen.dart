@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../main.dart';
 
 
 class AddBookScreen extends StatefulWidget {
   final Map<String, dynamic>? book;
   final List<String> categories;
+  final int? index;
 
-  const AddBookScreen({super.key, this.book, required this.categories,});
+  const AddBookScreen({super.key, this.book, required this.categories, this.index});
 
   @override
   State<AddBookScreen> createState() => _AddBookScreenState();
@@ -297,7 +301,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (titleController.text.isEmpty ||
                       authorController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -308,20 +312,39 @@ class _AddBookScreenState extends State<AddBookScreen> {
                     return;
                   }
 
-                   Navigator.pop(context, {
-                  "title": titleController.text,
-                  "author": authorController.text,
-                  "progress": progress.toInt(),
-                  "rating": rating,
-                  "category": selectedCategory,
-                   "status": getStatus(progress.toInt()),
-                  "year": int.tryParse(yearController.text) ?? 0,
-                  "pages": int.tryParse(pagesController.text) ?? 0,
-                  "language": languageController.text,
-                  "description": descriptionController.text,
-               "image": selectedImage?.path ??
-                        widget.book?["image"],
-                });
+                  final newBookMap = {
+                    "title": titleController.text,
+                    "author": authorController.text,
+                    "progress": progress.toInt(),
+                    "rating": rating,
+                    "category": selectedCategory,
+                    "status": getStatus(progress.toInt()),
+                    "year": int.tryParse(yearController.text) ?? 0,
+                    "pages": int.tryParse(pagesController.text) ?? 0,
+                    "language": languageController.text,
+                    "description": descriptionController.text,
+                    "image": selectedImage?.path ?? widget.book?["image"],
+                    "isFavorite": widget.book?["isFavorite"] ?? false,
+                    "dateAdded": widget.book?["dateAdded"],
+                    "dateCompleted": (progress.toInt() == 100 && (widget.book?["progress"] ?? 0) < 100)
+                                      ? DateTime.now().toIso8601String()
+                                      : (progress.toInt() < 100 ? null : widget.book?["dateCompleted"]),
+                  };
+
+                  if (isEdit && widget.index != null) {
+                    // Update data buku pada storage lokal
+                    final prefs = await SharedPreferences.getInstance();
+                    final booksString = prefs.getString('books');
+                    if (booksString != null) {
+                      List<dynamic> jsonList = jsonDecode(booksString);
+                      jsonList[widget.index!] = newBookMap;
+                      await prefs.setString('books', jsonEncode(jsonList));
+                    }
+                    Navigator.pop(context, true);
+                  } else {
+                    // Tambah buku baru
+                    Navigator.pop(context, newBookMap);
+                  }
                 },
                 child: Text(isEdit ? "Update" : "Simpan",   style: const TextStyle(color: Colors.white)),
 

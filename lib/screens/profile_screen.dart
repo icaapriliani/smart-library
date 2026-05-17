@@ -18,7 +18,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _selectedLanguage = "Indonesia";
-  String _username = "User";
   String _email = "";
 
   @override
@@ -29,12 +28,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserData() async {
-    final username = await AuthService.getUsername();
     final email = await AuthService.getEmail();
     
     if (mounted) {
       setState(() {
-        _username = (username != null && username.isNotEmpty) ? username : "User";
         _email = email ?? "";
       });
     }
@@ -222,7 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _showEditProfileDialog() async {
-    final nameController = TextEditingController(text: _username);
+    final nameController = TextEditingController(text: userNameNotifier.value);
     final imageController = TextEditingController(text: userImageNotifier.value);
 
     await showDialog(
@@ -271,11 +268,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               await prefs.setString('userImage', imageController.text);
               
               userImageNotifier.value = imageController.text;
+              userNameNotifier.value = nameController.text.isNotEmpty ? nameController.text : "User";
               
               if (mounted) {
-                setState(() {
-                  _username = nameController.text.isNotEmpty ? nameController.text : "User";
-                });
                 Navigator.pop(context);
               }
             },
@@ -428,12 +423,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    _username,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
+                                  ValueListenableBuilder<String>(
+                                    valueListenable: userNameNotifier,
+                                    builder: (context, name, _) => Text(
+                                      name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
                                   if (_email.isNotEmpty)

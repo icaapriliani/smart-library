@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'main_screen.dart';
 import '../services/auth_service.dart';
 import 'register_screen.dart';
+import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -54,6 +55,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       final success = await AuthService.login(email, password);
 
       if (success && mounted) {
+        final username = await AuthService.getUsername();
+        userNameNotifier.value = username ?? "User";
+        
         // Navigate to MainScreen
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
