@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'login_screen.dart';
 import 'onboarding_screen.dart';
+import 'main_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -45,12 +47,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
     final prefs = await SharedPreferences.getInstance();
     final bool showOnboarding = prefs.getBool('showOnboarding') ?? true;
+    final bool isLoggedIn = await AuthService.isLoggedIn();
 
     if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => 
-              showOnboarding ? const OnboardingScreen() : const LoginScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) {
+            if (isLoggedIn) {
+              return const MainScreen();
+            } else if (showOnboarding) {
+              return const OnboardingScreen();
+            } else {
+              return const LoginScreen();
+            }
+          },
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

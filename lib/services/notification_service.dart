@@ -27,7 +27,7 @@ class NotificationService {
       iOS: initializationSettingsDarwin,
     );
 
-    await flutterLocalNotificationsPlugin.initialize(settings: initializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
     tz.initializeTimeZones();
   }
 
@@ -122,10 +122,10 @@ class NotificationService {
     if (!notificationsNotifier.value) return;
 
     await flutterLocalNotificationsPlugin.show(
-      id: 100,
-      title: Localization.text('notif_title'),
-      body: Localization.text('notif_body'),
-      notificationDetails: const NotificationDetails(
+      100,
+      Localization.text('notif_title'),
+      Localization.text('notif_body'),
+      const NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_reminder_channel',
           'Daily Reminders',

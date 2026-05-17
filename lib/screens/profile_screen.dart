@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../main.dart';
 import '../models/book.dart';
+import '../services/auth_service.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final List<Book> books;
@@ -16,11 +18,26 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _selectedLanguage = "Indonesia";
+  String _username = "User";
+  String _email = "";
 
   @override
   void initState() {
     super.initState();
     _loadSettings();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final username = await AuthService.getUsername();
+    final email = await AuthService.getEmail();
+    
+    if (mounted) {
+      setState(() {
+        _username = (username != null && username.isNotEmpty) ? username : "User";
+        _email = email ?? "";
+      });
+    }
   }
 
   Future<void> _loadSettings() async {
@@ -205,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _showEditProfileDialog() async {
-    final nameController = TextEditingController(text: userNameNotifier.value);
+    final nameController = TextEditingController(text: _username);
     final imageController = TextEditingController(text: userImageNotifier.value);
 
     await showDialog(
@@ -250,13 +267,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
-              await prefs.setString('userName', nameController.text);
+              await prefs.setString('username', nameController.text);
               await prefs.setString('userImage', imageController.text);
-              userNameNotifier.value = nameController.text;
+              
               userImageNotifier.value = imageController.text;
-              if (context.mounted) Navigator.pop(context);
+              
+              if (mounted) {
+                setState(() {
+                  _username = nameController.text.isNotEmpty ? nameController.text : "User";
+                });
+                Navigator.pop(context);
+              }
             },
             child: const Text("Simpan"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Hapus Akun"),
+        content: const Text("Yakin ingin menghapus akun?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal", style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () async {
+              Navigator.pop(context); // Tutup dialog
+              
+              await AuthService.deleteAccount();
+              
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Akun berhasil dihapus"),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (Route<dynamic> route) => false,
+                );
+              }
+            },
+            child: const Text("Ya"),
           ),
         ],
       ),
@@ -360,26 +428,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ValueListenableBuilder<String>(
-                                    valueListenable: userNameNotifier,
-                                    builder: (context, name, _) {
-                                      return Text(
-                                        name,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  const Text(
-                                    "Pembaca Antusias",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
+                                  Text(
+                                    _username,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  if (_email.isNotEmpty)
+                                    Text(
+                                      _email,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 14,
+                                      ),
+                                    )
+                                  else
+                                    const Text(
+                                      "Pembaca Antusias",
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -647,6 +719,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Localization.text('kebijakan'),
                           onTap: _showPrivacyPolicyDialog,
                         ),
+                        _buildDivider(),
+                        _buildSettingItem(
+                          Icons.logout,
+                          "Keluar",
+                          onTap: () async {
+                            await AuthService.logout();
+                            if (context.mounted) {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                (Route<dynamic> route) => false,
+                              );
+                            }
+                          },
+                          iconColor: Colors.grey,
+                          textColor: Colors.grey,
+                          trailing: const SizedBox.shrink(),
+                        ),
+                        _buildDivider(),
+                        _buildSettingItem(
+                          Icons.person_remove,
+                          "Hapus Akun",
+                          onTap: _showDeleteAccountDialog,
+                          iconColor: Colors.red,
+                          textColor: Colors.red,
+                          trailing: const SizedBox.shrink(),
+                        ),
                       ],
                     ),
                   ),
@@ -709,15 +808,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSettingItem(IconData icon, String title, {Widget? trailing, VoidCallback? onTap}) {
+  Widget _buildSettingItem(IconData icon, String title, {Widget? trailing, VoidCallback? onTap, Color? iconColor, Color? textColor}) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.onSurface),
+      leading: Icon(icon, color: iconColor ?? Theme.of(context).colorScheme.onSurface),
       title: Text(
         title,
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: Theme.of(context).colorScheme.onSurface,
+          color: textColor ?? Theme.of(context).colorScheme.onSurface,
         ),
       ),
       trailing: trailing ?? Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),

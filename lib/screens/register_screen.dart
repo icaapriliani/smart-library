@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import 'main_screen.dart';
 import '../services/auth_service.dart';
-import 'register_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  
   bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
+  
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -40,21 +44,30 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _animationController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() async {
+  void _handleRegister() async {
     if (_formKey.currentState!.validate()) {
+      final name = _nameController.text;
       final email = _emailController.text;
       final password = _passwordController.text;
 
-      final success = await AuthService.login(email, password);
+      final success = await AuthService.register(name, email, password);
 
       if (success && mounted) {
-        // Navigate to MainScreen
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Register berhasil!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => const MainScreen(),
@@ -62,13 +75,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               return FadeTransition(opacity: animation, child: child);
             },
             transitionDuration: const Duration(milliseconds: 800),
-          ),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Email atau password salah"),
-            backgroundColor: Colors.red,
           ),
         );
       }
@@ -90,18 +96,18 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
               position: _slideAnimation,
               child: Column(
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 30),
                   // Logo
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: 70,
+                    height: 70,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF818CF8), Color(0xFF6366F1)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
                           color: const Color(0xFF6366F1).withOpacity(0.3),
@@ -110,42 +116,24 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         ),
                       ],
                     ),
-                    child: const Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Icon(
-                          Icons.menu_book_rounded,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                        Positioned(
-                          top: 15,
-                          right: 15,
-                          child: CircleAvatar(
-                            radius: 8,
-                            backgroundColor: Color(0xFF8B91FF),
-                            child: Icon(
-                              Icons.add,
-                              size: 12,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      color: Colors.white,
+                      size: 35,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Text(
                     "Smart Library",
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: isDark ? Colors.white : const Color(0xFF1A1C1E),
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 30),
                   
-                  // Login Form Container
+                  // Register Form Container
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -166,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         children: [
                           const Center(
                             child: Text(
-                              "Selamat Datang Kembali",
+                              "Buat akun baru",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 22,
@@ -177,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           const SizedBox(height: 8),
                           Center(
                             child: Text(
-                              "Masuk untuk melanjutkan ke koleksi bukumu",
+                              "Daftar untuk mulai mengelola koleksi bukumu",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14,
@@ -187,98 +175,83 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           ),
                           const SizedBox(height: 32),
                           
-                          // Email Field
-                          Text(
-                            "Email",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white70 : Colors.grey[800],
-                            ),
-                          ),
+                          // Name Field
+                          _buildLabel("Nama", isDark),
                           const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              hintText: "Masukkan email",
-                              prefixIcon: const Icon(Icons.email_outlined),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF2A2D32) : const Color(0xFFF3F4FF),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
+                          _buildTextField(
+                            controller: _nameController,
+                            hint: "Masukkan nama",
+                            icon: Icons.person_outline,
+                            isDark: isDark,
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Email tidak boleh kosong";
-                              }
-                              if (!value.contains("@")) {
-                                return "Format email tidak valid";
-                              }
+                              if (value == null || value.isEmpty) return "Nama tidak boleh kosong";
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Email Field
+                          _buildLabel("Email", isDark),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            controller: _emailController,
+                            hint: "Masukkan email",
+                            icon: Icons.email_outlined,
+                            isDark: isDark,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return "Email tidak boleh kosong";
+                              if (!value.contains("@")) return "Format email tidak valid";
                               return null;
                             },
                           ),
                           const SizedBox(height: 20),
                           
                           // Password Field
-                          Text(
-                            "Password",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? Colors.white70 : Colors.grey[800],
-                            ),
-                          ),
+                          _buildLabel("Password", isDark),
                           const SizedBox(height: 8),
-                          TextFormField(
+                          _buildTextField(
                             controller: _passwordController,
+                            hint: "Buat password",
+                            icon: Icons.lock_outline,
+                            isDark: isDark,
+                            isPassword: true,
                             obscureText: !_isPasswordVisible,
-                            decoration: InputDecoration(
-                              hintText: "Masukkan password",
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
-                                  size: 20,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isPasswordVisible = !_isPasswordVisible;
-                                  });
-                                },
-                              ),
-                              filled: true,
-                              fillColor: isDark ? const Color(0xFF2A2D32) : const Color(0xFFF3F4FF),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
+                            onVisibilityToggle: () {
+                              setState(() => _isPasswordVisible = !_isPasswordVisible);
+                            },
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Password tidak boleh kosong";
-                              }
-                              if (value.length < 6) {
-                                return "Password minimal 6 karakter";
-                              }
+                              if (value == null || value.isEmpty) return "Password tidak boleh kosong";
+                              if (value.length < 6) return "Minimal 6 karakter";
                               return null;
                             },
                           ),
-                          
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {},
-                              child: const Text(
-                                "Lupa password?",
-                                style: TextStyle(color: Colors.blueAccent),
-                              ),
-                            ),
+                          const SizedBox(height: 20),
+
+                          // Confirm Password Field
+                          _buildLabel("Konfirmasi Password", isDark),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            controller: _confirmPasswordController,
+                            hint: "Ulangi password",
+                            icon: Icons.verified_user_outlined,
+                            isDark: isDark,
+                            isPassword: true,
+                            obscureText: !_isConfirmPasswordVisible,
+                            onVisibilityToggle: () {
+                              setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible);
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) return "Konfirmasi password tidak boleh kosong";
+                              if (value != _passwordController.text) return "Password tidak cocok";
+                              return null;
+                            },
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 32),
                           
-                          // Login Button
+                          // Register Button
                           GestureDetector(
-                            onTap: _handleLogin,
+                            onTap: _handleRegister,
                             child: Container(
                               width: double.infinity,
                               height: 60,
@@ -299,16 +272,12 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Flexible(
-                                      child: Text(
-                                        "Masuk",
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    Text(
+                                      "Daftar",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     SizedBox(width: 8),
@@ -328,24 +297,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Flexible(
-                        child: Text(
-                          "Belum punya akun? ",
-                          textAlign: TextAlign.end,
-                          style: TextStyle(color: isDark ? Colors.white60 : Colors.grey[600]),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      Text(
+                        "Sudah punya akun? ",
+                        style: TextStyle(color: isDark ? Colors.white60 : Colors.grey[600]),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                          );
-                        },
+                        onTap: () => Navigator.pop(context),
                         child: const Text(
-                          "Daftar di sini",
+                          "Masuk di sini",
                           style: TextStyle(
                             color: Colors.blueAccent,
                             fontWeight: FontWeight.bold,
@@ -361,6 +320,55 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLabel(String text, bool isDark) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.w600,
+        color: isDark ? Colors.white70 : Colors.grey[800],
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    required bool isDark,
+    bool isPassword = false,
+    bool obscureText = false,
+    VoidCallback? onVisibilityToggle,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  obscureText ? Icons.visibility : Icons.visibility_off,
+                  size: 20,
+                ),
+                onPressed: onVisibilityToggle,
+              )
+            : null,
+        filled: true,
+        fillColor: isDark ? const Color(0xFF2A2D32) : const Color(0xFFF3F4FF),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      ),
+      validator: validator,
     );
   }
 }
